@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/adrianriobo/gowinx/ux"
+	"github.com/adrianriobo/gowinx/pkg/ux"
 )
 
 const (
