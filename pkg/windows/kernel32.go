@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	module = windows.NewLazySystemDLL("kernel32.dll")
+	moduleKernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
-	virtualAllocEx = module.NewProc("VirtualAllocEx")
+	virtualAllocEx = moduleKernel32.NewProc("VirtualAllocEx")
 )
 
 func VirtualAllocEx(hProcess C.HANDLE, lpAddress C.LPVOID, dwSize uintptr, flAllocationType, flProtect uint32) C.LPVOID {

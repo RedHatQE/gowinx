@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	module = windows.NewLazySystemDLL("user32.dll")
+	moduleUser32 = windows.NewLazySystemDLL("user32.dll")
 
-	findWindowEx = module.NewProc("FindWindowExW")
+	findWindowEx = moduleUser32.NewProc("FindWindowExW")
 )
 
 // https://social.msdn.microsoft.com/Forums/vstudio/en-US/82cf3f2b-b661-47c5-854d-dcd42b0d45c4/how-to-click-toolbar-button-in-another-application-using-api?forum=csharpgeneral
