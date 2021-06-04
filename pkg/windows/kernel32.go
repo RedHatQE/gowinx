@@ -18,14 +18,14 @@ var (
 	openProcess    = moduleKernel32.NewProc("OpenProcess")
 )
 
-func VirtualAllocEx(win.HWND, lpAddress, dwSize uintptr, flAllocationType, flProtect uint32) uintptr {
-	ret, _, _ := procVirtualAllocEx.Call(
+func VirtualAllocEx(hProcess win.HWND, lpAddress, dwSize uintptr, flAllocationType, flProtect uint32) uintptr {
+	ret, _, _ := syscall.Syscall6(virtualAllocEx.Addr(), 5,
 		uintptr(hProcess),
 		lpAddress,
 		dwSize,
 		uintptr(flAllocationType),
 		uintptr(flProtect),
-	)
+		0)
 
 	return ret
 }
