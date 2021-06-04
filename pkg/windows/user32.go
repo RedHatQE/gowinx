@@ -16,6 +16,7 @@ var (
 	findWindowEx = moduleUser32.NewProc("FindWindowExW")
 )
 
+// https://github.com/allendang/w32/blob/ad0a36d80adc/kernel32.go#L321
 // https://social.msdn.microsoft.com/Forums/vstudio/en-US/82cf3f2b-b661-47c5-854d-dcd42b0d45c4/how-to-click-toolbar-button-in-another-application-using-api?forum=csharpgeneral
 
 func FindWindowEx(hWndParent, hWndChildAfter win.HWND, lpszClass, lpszWindow *uint16) win.HWND {
