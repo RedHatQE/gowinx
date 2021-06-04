@@ -4,6 +4,7 @@ package windows
 
 import (
 	"syscall"
+	"unsafe"
 
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
@@ -14,9 +15,23 @@ const PROCESS_ALL_ACCESS = 0x1F0FFF
 var (
 	moduleKernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
-	virtualAllocEx = moduleKernel32.NewProc("VirtualAllocEx")
-	openProcess    = moduleKernel32.NewProc("OpenProcess")
+	virtualAllocEx    = moduleKernel32.NewProc("VirtualAllocEx")
+	openProcess       = moduleKernel32.NewProc("OpenProcess")
+	readProcessMemory = moduleKernel32.NewProc("ReadProcessMemory")
 )
+
+// https://github.com/elastic/go-windows/blob/f97ca94f20d7a0b96d53964653b37da30f9dfbfc/zsyscall_windows.go#L119
+func ReadProcessMemory(handle win.HWND, baseAddress uintptr, buffer uintptr, size uintptr, numRead *uintptr) uintptr {
+	ret, _, _ := syscall.Syscall6(readProcessMemory.Addr(), 5,
+		uintptr(handle),
+		uintptr(baseAddress),
+		uintptr(buffer),
+		uintptr(size),
+		uintptr(unsafe.Pointer(numRead)),
+		0)
+
+	return ret
+}
 
 func VirtualAllocEx(hProcess win.HWND, lpAddress, dwSize uintptr, flAllocationType, flProtect uint32) uintptr {
 	ret, _, _ := syscall.Syscall6(virtualAllocEx.Addr(), 5,
