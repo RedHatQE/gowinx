@@ -1,3 +1,5 @@
+// +build windowsls
+
 package main
 
 import (
