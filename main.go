@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/adrianriobo/gowinx/pkg/ux/notify"
-	"github.com/adrianriobo/gowinx/pkg/windows"
 	"github.com/lxn/win"
 )
 
@@ -28,8 +27,8 @@ func main() {
 		var tbProcessID uint32
 		toolbarThreadId := win.GetWindowThreadProcessId(toolbarHandler, &tbProcessID)
 		fmt.Printf("ProcessId is %d ThreadId is %d \n", tbProcessID, toolbarThreadId)
-		processHandler := windows.OpenProcessAllAccess(false, toolbarThreadId)
-		fmt.Printf("ProcessHandler is %d \n", processHandler)
+		// processHandler := windows.OpenProcessAllAccess(false, toolbarThreadId)
+		//fmt.Printf("ProcessHandler is %d \n", processHandler)
 
 		if buttonsCount, err := notify.GetButtonsCountONotifyToolbar(); err != nil {
 			os.Exit(1)

@@ -3,14 +3,10 @@
 package windows
 
 import (
-	"C"
-
-	"golang.org/x/sys/windows"
-)
-import (
 	"syscall"
 
 	"github.com/lxn/win"
+	"golang.org/x/sys/windows"
 )
 
 const PROCESS_ALL_ACCESS = 0x1F0FFF
@@ -22,16 +18,16 @@ var (
 	openProcess    = moduleKernel32.NewProc("OpenProcess")
 )
 
-func VirtualAllocEx(hProcess C.HANDLE, lpAddress C.LPVOID, dwSize uintptr, flAllocationType, flProtect uint32) C.LPVOID {
-	ret, _, _ := syscall.Syscall6(virtualAllocEx.Addr(), 5,
+func VirtualAllocEx(win.HWND, lpAddress, dwSize uintptr, flAllocationType, flProtect uint32) uintptr {
+	ret, _, _ := procVirtualAllocEx.Call(
 		uintptr(hProcess),
-		uintptr(lpAddress),
+		lpAddress,
 		dwSize,
 		uintptr(flAllocationType),
 		uintptr(flProtect),
-		0)
+	)
 
-	return C.LPVOID(ret)
+	return ret
 }
 
 func OpenProcessAllAccess(inheritHandle bool, processId uint32) win.HWND {
