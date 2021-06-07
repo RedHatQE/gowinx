@@ -29,6 +29,19 @@ type TBBUTTONINFO struct {
 	Cx        uint16
 }
 
+// type TBBUTTONINFO struct {
+// 	CbSize    uint32
+// 	DwMask    uint32
+// 	IdCommand int32
+// 	IImage    int32
+// 	FsState   byte
+// 	FsStyle   byte
+// 	Cx        uint16
+// 	LParam    uintptr
+// 	PszText   uintptr
+// 	CchText   int32
+// }
+
 func decode(b []byte) (*TBBUTTONINFO, error) {
 	buf := bytes.NewBuffer(b)
 
@@ -39,6 +52,10 @@ func decode(b []byte) (*TBBUTTONINFO, error) {
 	}
 
 	return obj, nil
+}
+
+func makeLPARAM(hiword, loword uint16) uintptr {
+	return uintptr((hiword << 16) | uint16(loword&0xffff))
 }
 
 func main() {
@@ -84,6 +101,7 @@ func main() {
 				// }
 				// var destination [uint32(unsafe.Sizeof(win.TBBUTTONINFO{}))]byte
 				var numRead uintptr
+
 				win.SendMessage(toolbarHandler, win.TB_GETBUTTONTEXT, i, infoBaseAddress)
 				var destination [200]byte
 				if dataRead := windows.ReadProcessMemory(processHandler, infoBaseAddress,
@@ -93,8 +111,15 @@ func main() {
 					fmt.Print("Nothing read \n")
 				} else {
 					fmt.Printf("Button %d is %s\n", i, string(destination[:]))
+
 				}
+				if i == 1 {
+					win.SendMessage(toolbarHandler, win.WM_COMMAND, i, makeLPARAM(uint16(win.GetDlgItem(toolbarHandler, int32(i))), win.BN_CLICKED))
+				}
+
 			}
+			// After click pick the menu items
+			// https://stackoverflow.com/questions/16271512/how-to-get-handle-for-menu-items-of-an-application-running-in-the-back-ground-fr
 		}
 
 	}
