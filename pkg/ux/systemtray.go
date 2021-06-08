@@ -1,6 +1,5 @@
 // +build windows
-
-package notify
+package ux
 
 import (
 	"fmt"
@@ -47,6 +46,29 @@ func GetButtonsCountONotifyToolbar() (uintptr, error) {
 	} else {
 		return win.SendMessage(handler, win.TB_BUTTONCOUNT, 0, 0), nil
 	}
+}
+
+func GetNotifyAreaRect() win.RECT {
+	// Show notification area (hidden)
+	ShowNotifyIconOverflowWindow()
+	if toolbarHandler, err := GetNotifyToolbarHandler(); err == nil {
+		var rect win.RECT
+		if win.GetWindowRect(toolbarHandler, &rect) {
+			fmt.Printf("Rect for system tray t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
+			return rect
+		}
+	}
+	return win.RECT{}
+}
+
+// To implement
+// func GetIconPosition(title string) (x, y int32) {
+// }
+
+func GetIconPosition(rect win.RECT) (x, y int32) {
+	x = rect.Left + 10
+	y = rect.Top + 10
+	return
 }
 
 func getWindowHandlerByClass(class string) win.HWND {
