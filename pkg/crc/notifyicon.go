@@ -3,8 +3,6 @@ package crc
 
 import (
 	"fmt"
-	"os"
-	"unsafe"
 
 	"github.com/adrianriobo/gowinx/pkg/ux"
 	"github.com/adrianriobo/gowinx/pkg/windows"
@@ -15,7 +13,6 @@ const (
 	CONTEXT_MENU_CLASS string = "WindowsForms10.Window.20808.app.0.232467a_r7_ad1"
 	CONTEXT_MENU_TITLE string = "crcText"
 
-	// Check if resolution affects
 	CONTEXT_MENU_MARGIN_TOP            int32 = 2
 	CONTEXT_MENU_ITEM_SEPARATOR_HEIGHT int32 = 6
 	CONTEXT_MENU_ITEM_HEIGHT           int32 = 22
@@ -62,8 +59,7 @@ func MenuItemPosition(menuItemName string) (x, y int32) {
 }
 
 func iconMenuRect() win.RECT {
-	winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE)
-	if winHWND > 0 {
+	if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
 		var rect win.RECT
 		if win.GetWindowRect(winHWND, &rect) {
 			fmt.Printf("Rect for CRC icon menu t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
@@ -87,73 +83,16 @@ func menuItemRelativePosition(menuItemName string) (x, y int32) {
 	return
 }
 
-// Deprecated ??
-func buttonsCountOnTray() int {
-	if handler := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); handler > 0 {
-		number := int(win.SendMessage(handler, win.TB_BUTTONCOUNT, 0, 0))
-		fmt.Printf("Got the handler and number buttons is %d \n", number)
-		return number
-	} else {
-		return 0
-	}
-}
-
-// Deprecated ??
-func clickButtonsOnTray() {
-	if toolbarHandler, err := ux.GetNotifyToolbarHandler(); err != nil {
-		os.Exit(1)
-	} else {
-		var numRead uintptr
-		winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE)
-		var tbProcessID uint32
-		toolbarThreadId := win.GetWindowThreadProcessId(toolbarHandler, &tbProcessID)
-		fmt.Printf("ProcessId is %d ThreadId is %d \n", tbProcessID, toolbarThreadId)
-		processHandler := windows.OpenProcessAllAccess(false, tbProcessID)
-		fmt.Printf("ProcessHandler is %d \n", processHandler)
-		infoBaseAddress := ux.GetTBButtonInfoAllocation(processHandler)
-		fmt.Printf("Base adrress is %d \n", infoBaseAddress)
-		if buttonsCount := buttonsCountOnTray(); buttonsCount > 0 {
-			fmt.Printf("Number of buttons %d \n", buttonsCount)
-			for i := 0; i < buttonsCount; i++ {
-				win.SendMessage(winHWND, win.TB_GETBUTTONTEXT, uintptr(i), infoBaseAddress)
-				var destination [200]byte
-				if dataRead := windows.ReadProcessMemory(processHandler, infoBaseAddress,
-					uintptr(unsafe.Pointer(&destination[0])),
-					100,
-					&numRead); dataRead == 0 {
-					fmt.Print("Nothing read \n")
-				} else {
-					fmt.Printf("On windows Button %d is %s\n", i, string(destination[:]))
-
-				}
+// Give a try to click directly sending messages
+func ClickMenuItem(position int) {
+	if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
+		// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmenu#remarks
+		if menuHandler := windows.GetMenu(winHWND); menuHandler > 0 {
+			if menuItemID := win.GetMenuItemID(menuHandler, int32(position)); menuItemID > 0 {
+				fmt.Printf("We got menu item ID %d", menuItemID)
+				win.SendMessage(winHWND, win.WM_COMMAND, windows.MakeLPARAM(0, uint16(menuItemID)), 0)
 			}
 		}
-	}
-}
-
-// Deprecated ??
-func ClickOn() {
-	winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE)
-	if winHWND > 0 {
-
-		var rect win.RECT
-		if win.GetWindowRect(winHWND, &rect) {
-			fmt.Printf("Get rect top: %d, left: %d right: %d, bottom: %d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
-		}
-		// topMargin := uint16(2)
-		// menuItemHeight := uint16(22)
-		// menuItemWitdh := int32(215)
-		// separatorHeight := uint16(6)
-		y := uint16(65)
-		x := uint16(rect.Right / 2)
-		fmt.Printf("Will click at x: %d, y: %d\n", x, y)
-
-		// Test
-		// win.SendMessage(winHWND, win.WM_MOUSEMOVE, win.MK_RBUTTON, windows.MakeLPARAM(x, ya))
-		// Test2
-		//ux.MouseClick(int32(x), int32(y))
 
 	}
-	// After click pick the menu items
-	// https://stackoverflow.com/questions/16271512/how-to-get-handle-for-menu-items-of-an-application-running-in-the-back-ground-fr
 }

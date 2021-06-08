@@ -14,6 +14,7 @@ var (
 
 	findWindowEx = moduleUser32.NewProc("FindWindowExW")
 	clipCursor   = moduleUser32.NewProc("ClipCursor")
+	getMenu      = moduleUser32.NewProc("GetMenu")
 )
 
 // https://github.com/allendang/w32/blob/ad0a36d80adc/kernel32.go#L321
@@ -39,5 +40,17 @@ func ClipCursor(lpRect *win.RECT) uintptr {
 		0)
 	// Change this to bool value
 	return ret
+}
 
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmenu
+// HMENU GetMenu(
+// 	HWND hWnd
+//   );
+func GetMenu(hWnd win.HWND) win.HMENU {
+	ret, _, _ := syscall.Syscall(getMenu.Addr(), 1,
+		uintptr(hWnd),
+		0,
+		0)
+
+	return win.HMENU(ret)
 }
