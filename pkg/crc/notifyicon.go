@@ -5,11 +5,13 @@ import (
 	"fmt"
 
 	"github.com/adrianriobo/gowinx/pkg/ux"
-	"github.com/adrianriobo/gowinx/pkg/windows"
-	"github.com/lxn/win"
+	"github.com/adrianriobo/gowinx/pkg/win32"
 )
 
 const (
+	// OS dependant
+	// https://stackoverflow.com/questions/19436860/go-golang-trying-to-get-window-information-via-syscall-as-in-enumwindows-etc
+	// https://gist.github.com/EliCDavis/5374fa4947897b16a81f6550d142ab28
 	CONTEXT_MENU_CLASS string = "WindowsForms10.Window.20808.app.0.232467a_r7_ad1"
 	CONTEXT_MENU_TITLE string = "crcText"
 
@@ -51,22 +53,23 @@ var (
 )
 
 func MenuItemPosition(menuItemName string) (x, y int32) {
-	iconMenuRect := iconMenuRect()
-	x, y = menuItemRelativePosition(menuItemName)
-	x = x + iconMenuRect.Left
-	y = y + iconMenuRect.Top
+	if iconMenuRect, err := iconMenuRect(); err == nil {
+		x, y = menuItemRelativePosition(menuItemName)
+		x = x + iconMenuRect.Left
+		y = y + iconMenuRect.Top
+	}
 	return
 }
 
-func iconMenuRect() win.RECT {
-	if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
-		var rect win.RECT
-		if win.GetWindowRect(winHWND, &rect) {
-			fmt.Printf("Rect for CRC icon menu t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
-			return rect
+func iconMenuRect() (rect win32.RECT, err error) {
+	// if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
+	if winHWND, err := ux.FindWindowByTitle(CONTEXT_MENU_TITLE); err == nil {
+		if _, err = win32.GetWindowRect(winHWND, &rect); err == nil {
+			fmt.Printf("Rect for system tray t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
 		}
 	}
-	return win.RECT{}
+	fmt.Print("error getting icon menu window handler")
+	return
 }
 
 func menuItemRelativePosition(menuItemName string) (x, y int32) {
@@ -84,15 +87,16 @@ func menuItemRelativePosition(menuItemName string) (x, y int32) {
 }
 
 // Give a try to click directly sending messages
-func ClickMenuItem(position int) {
-	if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
-		// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmenu#remarks
-		if menuHandler := windows.GetMenu(winHWND); menuHandler > 0 {
-			if menuItemID := win.GetMenuItemID(menuHandler, int32(position)); menuItemID > 0 {
-				fmt.Printf("We got menu item ID %d", menuItemID)
-				win.SendMessage(winHWND, win.WM_COMMAND, windows.MakeLPARAM(0, uint16(menuItemID)), 0)
-			}
-		}
+// func ClickMenuItem(position int) {
+// 	// if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
+// 	if winHWND, err := ux.FindWindowByTitle(CONTEXT_MENU_TITLE); err == nil {
+// 		// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmenu#remarks
+// 		if menuHandler := windows.GetMenu(winHWND); menuHandler > 0 {
+// 			if menuItemID := win.GetMenuItemID(menuHandler, int32(position)); menuItemID > 0 {
+// 				fmt.Printf("We got menu item ID %d", menuItemID)
+// 				win.SendMessage(winHWND, win.WM_COMMAND, windows.MakeLPARAM(0, uint16(menuItemID)), 0)
+// 			}
+// 		}
 
-	}
-}
+// 	}
+// }

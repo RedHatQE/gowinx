@@ -6,28 +6,48 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/lxn/win"
+	"github.com/adrianriobo/gowinx/pkg/win32"
 )
 
 const (
 	elementClickDelay time.Duration = 300 * time.Millisecond
 )
 
-func getDX(x int32) int32 {
-	return (x * 65536) / win.GetSystemMetrics(win.SM_CXSCREEN)
+type MOUSE_INPUT struct {
+	Type uint32
+	Mi   MOUSEINPUT
 }
 
-func getDY(y int32) int32 {
-	return (y * 65536) / win.GetSystemMetrics(win.SM_CYSCREEN)
+type MOUSEINPUT struct {
+	Dx          int32
+	Dy          int32
+	MouseData   uint32
+	DwFlags     uint32
+	Time        uint32
+	DwExtraInfo uintptr
 }
 
-func MouseInput(x, y int32, dwFlags uint32) error {
+func Click(x, y int32) error {
+	events := [3]uint32{
+		win32.MOUSEEVENTF_ABSOLUTE | win32.MOUSEEVENTF_MOVE,
+		win32.MOUSEEVENTF_LEFTDOWN,
+		win32.MOUSEEVENTF_LEFTUP}
+	for _, event := range events {
+		time.Sleep(elementClickDelay)
+		if err := mouseInput(x, y, uint32(event)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func mouseInput(x, y int32, dwFlags uint32) error {
 	dx := getDX(x)
 	dy := getDY(y)
 	fmt.Printf("Click done at x:%d y:%d \n", dx, dy)
-	mouseInput := win.MOUSE_INPUT{
-		Type: win.INPUT_MOUSE,
-		Mi: win.MOUSEINPUT{
+	mouseInput := MOUSE_INPUT{
+		Type: win32.INPUT_MOUSE,
+		Mi: MOUSEINPUT{
 			Dx:          dx,
 			Dy:          dy,
 			MouseData:   uint32(0),
@@ -35,41 +55,29 @@ func MouseInput(x, y int32, dwFlags uint32) error {
 			Time:        uint32(0),
 			DwExtraInfo: uintptr(0)}}
 
-	actions := [1]win.MOUSE_INPUT{mouseInput}
+	actions := [1]MOUSE_INPUT{mouseInput}
 
-	if success := win.SendInput(uint32(2), unsafe.Pointer(&actions), int32(unsafe.Sizeof(mouseInput))); success > 0 {
+	if success, err := win32.SendInput(uint32(2), unsafe.Pointer(&actions), int32(unsafe.Sizeof(mouseInput))); err == nil {
 		fmt.Printf("Input sent successfull returns %d actions\n", success)
 		return nil
 	} else {
-		fmt.Printf("Failed clicking\n")
-		return fmt.Errorf("failed to mouse input at x:%d y:%d \n", dx, dy)
+		return err
 	}
 }
 
-// Evaluate why this is not working
-func Click(x, y int32) error {
-	events := [3]uint32{
-		win.MOUSEEVENTF_ABSOLUTE | win.MOUSEEVENTF_MOVE,
-		win.MOUSEEVENTF_LEFTDOWN,
-		win.MOUSEEVENTF_LEFTUP}
-	for _, event := range events {
-		time.Sleep(elementClickDelay)
-		if err := MouseInput(x, y, uint32(event)); err != nil {
-			return err
-		}
-	}
-	return nil
+func getDX(x int32) int32 {
+	return getDAxisValue(x, win32.SM_CXSCREEN)
 }
 
-// func Click(x, y int32) error {
-// 	if err := MouseInput(x, y, win.MOUSEEVENTF_ABSOLUTE|win.MOUSEEVENTF_MOVE); err != nil {
-// 		return err
-// 	}
-// 	if err := MouseInput(x, y, win.MOUSEEVENTF_LEFTDOWN); err != nil {
-// 		return err
-// 	}
-// 	if err := MouseInput(x, y, win.MOUSEEVENTF_LEFTUP); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func getDY(y int32) int32 {
+	return getDAxisValue(y, win32.SM_CYSCREEN)
+}
+
+func getDAxisValue(axisValue, systemMetricConstant int32) int32 {
+	if metric, err := win32.GetSystemMetrics(systemMetricConstant); err == nil {
+		return (axisValue * 65536) / metric
+	} else {
+		fmt.Print(err)
+		return 0
+	}
+}

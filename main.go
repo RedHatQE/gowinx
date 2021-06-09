@@ -8,10 +8,11 @@ import (
 )
 
 func main() {
-	notifyAreaRect := ux.GetNotifyAreaRect()
-	x, y := ux.GetIconPosition(notifyAreaRect)
-	ux.Click(x, y)
+	if notifyAreaRect, err := ux.GetNotifyAreaRect(); err == nil {
+		x, y := ux.GetIconPosition(notifyAreaRect)
+		ux.Click(x, y)
 
-	stopX, stopY := crc.MenuItemPosition(crc.CONTEXT_MENU_ITEM_STOP)
-	ux.Click(stopX, stopY)
+		stopX, stopY := crc.MenuItemPosition(crc.CONTEXT_MENU_ITEM_STOP)
+		ux.Click(stopX, stopY)
+	}
 }
