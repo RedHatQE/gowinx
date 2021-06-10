@@ -8,17 +8,21 @@ import (
 
 var (
 	enumWindows         = user32.MustFindProc("EnumWindows")
+	enumChildWindows    = user32.MustFindProc("EnumChildWindows")
 	getWindowTextW      = user32.MustFindProc("GetWindowTextW")
+	getWindowTextA      = user32.MustFindProc("GetWindowTextA")
 	findWindowW         = user32.MustFindProc("FindWindowW")
 	findWindowEx        = user32.MustFindProc("FindWindowExW")
 	getForegroundWindow = user32.MustFindProc("GetForegroundWindow")
 	getClassNameW       = user32.MustFindProc("GetClassNameW")
 	sendMessageW        = user32.MustFindProc("SendMessageW")
+	sendMessageA        = user32.MustFindProc("SendMessageA")
 	getSystemMetrics    = user32.MustFindProc("GetSystemMetrics")
 	sendInput           = user32.MustFindProc("SendInput")
 	getWindowRect       = user32.MustFindProc("GetWindowRect")
 	getDlgItem          = user32.MustFindProc("GetDlgItem")
 	showWindow          = user32.MustFindProc("ShowWindow")
+	isWindowUnicode     = user32.MustFindProc("IsWindowUnicode")
 )
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
@@ -26,33 +30,56 @@ var (
 // 	WNDENUMPROC lpEnumFunc,
 // 	LPARAM      lParam
 // );
-func EnumWindows(enumFunc uintptr, lparam uintptr) (err error) {
+func EnumWindows(enumFunc uintptr, lparam uintptr) (success bool, err error) {
 	r0, _, e1 := syscall.Syscall(enumWindows.Addr(), 2,
 		uintptr(enumFunc),
 		uintptr(lparam),
 		0)
-	if r0 == 0 {
-		if e1 != 0 {
-			err = error(e1)
-		} else {
-			err = syscall.EINVAL
-		}
+	success, err = evalSyscallBool(r0, e1)
+	return
+}
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumchildwindows
+// BOOL EnumChildWindows(
+// 	HWND        hWndParent,
+// 	WNDENUMPROC lpEnumFunc,
+// 	LPARAM      lParam
+// );
+func EnumChildWindows(hWndParent syscall.Handle, lpEnumFunc, lParam uintptr) (err error) {
+	_, _, e1 := syscall.Syscall(enumChildWindows.Addr(), 3,
+		uintptr(hWndParent),
+		lpEnumFunc,
+		lParam)
+	if e1 != 0 {
+		err = error(e1)
+	} else {
+		err = syscall.EINVAL
 	}
 	return
 }
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtextw
-// int GetWindowTextW(
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowtexta
+// int GetWindowText(
 // 	HWND   hWnd,
 // 	LPWSTR lpString,
 // 	int    nMaxCount
 // );
-func GetWindowTextW(hwnd syscall.Handle, str *uint16, maxCount int32) (len int32, err error) {
-	r0, _, e1 := syscall.Syscall(getWindowTextW.Addr(), 3,
-		uintptr(hwnd),
-		uintptr(unsafe.Pointer(str)),
-		uintptr(maxCount))
-	len, err = evalSyscallInt32(r0, e1)
+func GetWindowText(hWnd syscall.Handle, str *uint16, maxCount int32) (len int32, err error) {
+	isUnicode, err := IsWindowUnicode(hWnd)
+	if err == nil {
+		var getWindowTextAddress uintptr
+		if isUnicode {
+			getWindowTextAddress = getWindowTextW.Addr()
+		} else {
+			getWindowTextAddress = getWindowTextA.Addr()
+		}
+		r0, _, e1 := syscall.Syscall(getWindowTextAddress, 3,
+			uintptr(hWnd),
+			uintptr(unsafe.Pointer(str)),
+			uintptr(maxCount))
+		len, err = evalSyscallInt32(r0, e1)
+	}
 	return
 }
 
@@ -126,25 +153,35 @@ func GetClassName(hWnd syscall.Handle) (name string, err error) {
 }
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagea
 // LRESULT SendMessageW(
 // 	HWND   hWnd,
 // 	UINT   Msg,
 // 	WPARAM wParam,
 // 	LPARAM lParam
 // );
-func SendMessageW(hWnd syscall.Handle, msg uint32, wParam, lParam uintptr) (lResult uintptr, err error) {
-	r0, _, e1 := syscall.Syscall6(sendMessageW.Addr(), 4,
-		uintptr(hWnd),
-		uintptr(msg),
-		wParam,
-		lParam,
-		0,
-		0)
-	lResult = r0
-	if e1 != 0 {
-		err = error(e1)
-	} else {
-		err = syscall.EINVAL
+func SendMessage(hWnd syscall.Handle, msg uint32, wParam, lParam uintptr) (lResult uintptr, err error) {
+	isUnicode, err := IsWindowUnicode(hWnd)
+	if err == nil {
+		var sendMessageAddress uintptr
+		if isUnicode {
+			sendMessageAddress = sendMessageW.Addr()
+		} else {
+			sendMessageAddress = sendMessageA.Addr()
+		}
+		r0, _, e1 := syscall.Syscall6(sendMessageAddress, 4,
+			uintptr(hWnd),
+			uintptr(msg),
+			wParam,
+			lParam,
+			0,
+			0)
+		lResult = r0
+		if e1 != 0 {
+			err = error(e1)
+		} else {
+			err = syscall.EINVAL
+		}
 	}
 	return
 }
@@ -210,10 +247,24 @@ func GetDlgItem(hDlg syscall.Handle, nIDDlgItem int32) (hwnd syscall.Handle, err
 // 	HWND hWnd,
 // 	int  nCmdShow
 // );
-func ShowWindow(hWnd syscall.Handle, nCmdShow int32) (hidden bool) {
-	ret, _, _ := syscall.Syscall(showWindow.Addr(), 2,
+func ShowWindow(hWnd syscall.Handle, nCmdShow int32) (hidden bool, err error) {
+	r0, _, e1 := syscall.Syscall(showWindow.Addr(), 2,
 		uintptr(hWnd),
 		uintptr(nCmdShow),
 		0)
-	return ret != 0
+	hidden, err = evalSyscallBool(r0, e1)
+	return
+}
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-iswindowunicode
+// BOOL IsWindowUnicode(
+// 	HWND hWnd
+// );
+func IsWindowUnicode(hWnd syscall.Handle) (isUnicode bool, err error) {
+	r0, _, e1 := syscall.Syscall(isWindowUnicode.Addr(), 1,
+		uintptr(hWnd),
+		0,
+		0)
+	isUnicode, err = evalSyscallBool(r0, e1)
+	return
 }

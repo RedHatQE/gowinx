@@ -12,7 +12,7 @@ func FindWindowByTitle(title string) (syscall.Handle, error) {
 	var hwnd syscall.Handle
 	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
 		b := make([]uint16, 200)
-		_, err := win32.GetWindowTextW(h, &b[0], int32(len(b)))
+		_, err := win32.GetWindowText(h, &b[0], int32(len(b)))
 		if err != nil {
 			// ignore the error
 			return 1 // continue enumeration
@@ -34,4 +34,9 @@ func FindWindowByTitle(title string) (syscall.Handle, error) {
 func FindWindowByClass(class string) (syscall.Handle, error) {
 	z := uint16(0)
 	return win32.FindWindowW(syscall.StringToUTF16Ptr(class), &z)
+}
+
+func FindWindowExByClass(parentHandler syscall.Handle, class string) (syscall.Handle, error) {
+	z := uint16(0)
+	return win32.FindWindowEx(parentHandler, syscall.Handle(0), syscall.StringToUTF16Ptr(class), &z)
 }
