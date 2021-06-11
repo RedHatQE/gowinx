@@ -16,8 +16,10 @@ type RECT struct {
 const (
 	WM_USER           uint32 = 1024
 	TB_BUTTONCOUNT    uint32 = WM_USER + 24
+	TB_COMMANDTOINDEX uint32 = WM_USER + 25
 	TB_GETBUTTONINFOW uint32 = WM_USER + 63
 	TB_GETBUTTONINFOA uint32 = WM_USER + 65
+	TB_GETBUTTONTEXT  uint32 = WM_USER + 75
 )
 
 // GetSystemMetrics constants

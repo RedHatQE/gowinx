@@ -7,22 +7,23 @@ import (
 )
 
 var (
-	enumWindows         = user32.MustFindProc("EnumWindows")
-	enumChildWindows    = user32.MustFindProc("EnumChildWindows")
-	getWindowTextW      = user32.MustFindProc("GetWindowTextW")
-	getWindowTextA      = user32.MustFindProc("GetWindowTextA")
-	findWindowW         = user32.MustFindProc("FindWindowW")
-	findWindowEx        = user32.MustFindProc("FindWindowExW")
-	getForegroundWindow = user32.MustFindProc("GetForegroundWindow")
-	getClassNameW       = user32.MustFindProc("GetClassNameW")
-	sendMessageW        = user32.MustFindProc("SendMessageW")
-	sendMessageA        = user32.MustFindProc("SendMessageA")
-	getSystemMetrics    = user32.MustFindProc("GetSystemMetrics")
-	sendInput           = user32.MustFindProc("SendInput")
-	getWindowRect       = user32.MustFindProc("GetWindowRect")
-	getDlgItem          = user32.MustFindProc("GetDlgItem")
-	showWindow          = user32.MustFindProc("ShowWindow")
-	isWindowUnicode     = user32.MustFindProc("IsWindowUnicode")
+	enumWindows              = user32.MustFindProc("EnumWindows")
+	enumChildWindows         = user32.MustFindProc("EnumChildWindows")
+	getWindowTextW           = user32.MustFindProc("GetWindowTextW")
+	getWindowTextA           = user32.MustFindProc("GetWindowTextA")
+	findWindowW              = user32.MustFindProc("FindWindowW")
+	findWindowEx             = user32.MustFindProc("FindWindowExW")
+	getForegroundWindow      = user32.MustFindProc("GetForegroundWindow")
+	getClassNameW            = user32.MustFindProc("GetClassNameW")
+	sendMessageW             = user32.MustFindProc("SendMessageW")
+	sendMessageA             = user32.MustFindProc("SendMessageA")
+	getSystemMetrics         = user32.MustFindProc("GetSystemMetrics")
+	sendInput                = user32.MustFindProc("SendInput")
+	getWindowRect            = user32.MustFindProc("GetWindowRect")
+	getDlgItem               = user32.MustFindProc("GetDlgItem")
+	showWindow               = user32.MustFindProc("ShowWindow")
+	isWindowUnicode          = user32.MustFindProc("IsWindowUnicode")
+	getWindowThreadProcessId = user32.MustFindProc("GetWindowThreadProcessId")
 )
 
 // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows
@@ -266,5 +267,19 @@ func IsWindowUnicode(hWnd syscall.Handle) (isUnicode bool, err error) {
 		0,
 		0)
 	isUnicode, err = evalSyscallBool(r0, e1)
+	return
+}
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getwindowthreadprocessid
+// DWORD GetWindowThreadProcessId(
+// 	HWND    hWnd,
+// 	LPDWORD lpdwProcessId
+// );
+func GetWindowThreadProcessId(hWnd syscall.Handle, lpdwProcessId *uint32) (windowCreatorThreadId int32, err error) {
+	r0, _, e1 := syscall.Syscall(getWindowThreadProcessId.Addr(), 2,
+		uintptr(hWnd),
+		uintptr(unsafe.Pointer(lpdwProcessId)),
+		0)
+	windowCreatorThreadId, err = evalSyscallInt32(r0, e1)
 	return
 }

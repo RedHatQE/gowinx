@@ -1,18 +1,18 @@
 // +build windows
-package ux
+package windows
 
 import (
 	"fmt"
 	"syscall"
 
-	"github.com/adrianriobo/gowinx/pkg/win32"
+	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
 )
 
 func FindWindowByTitle(title string) (syscall.Handle, error) {
 	var hwnd syscall.Handle
 	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
 		b := make([]uint16, 200)
-		_, err := win32.GetWindowText(h, &b[0], int32(len(b)))
+		_, err := win32api.GetWindowText(h, &b[0], int32(len(b)))
 		if err != nil {
 			// ignore the error
 			return 1 // continue enumeration
@@ -24,7 +24,7 @@ func FindWindowByTitle(title string) (syscall.Handle, error) {
 		}
 		return 1 // continue enumeration
 	})
-	win32.EnumWindows(cb, 0)
+	win32api.EnumWindows(cb, 0)
 	if hwnd == 0 {
 		return 0, fmt.Errorf("No window with title '%s' found", title)
 	}
@@ -33,10 +33,10 @@ func FindWindowByTitle(title string) (syscall.Handle, error) {
 
 func FindWindowByClass(class string) (syscall.Handle, error) {
 	z := uint16(0)
-	return win32.FindWindowW(syscall.StringToUTF16Ptr(class), &z)
+	return win32api.FindWindowW(syscall.StringToUTF16Ptr(class), &z)
 }
 
 func FindWindowExByClass(parentHandler syscall.Handle, class string) (syscall.Handle, error) {
 	z := uint16(0)
-	return win32.FindWindowEx(parentHandler, syscall.Handle(0), syscall.StringToUTF16Ptr(class), &z)
+	return win32api.FindWindowEx(parentHandler, syscall.Handle(0), syscall.StringToUTF16Ptr(class), &z)
 }

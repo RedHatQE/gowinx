@@ -4,8 +4,8 @@ package crc
 import (
 	"fmt"
 
-	"github.com/adrianriobo/gowinx/pkg/ux"
-	"github.com/adrianriobo/gowinx/pkg/win32"
+	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
+	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
 
 const (
@@ -61,10 +61,10 @@ func MenuItemPosition(menuItemName string) (x, y int32) {
 	return
 }
 
-func iconMenuRect() (rect win32.RECT, err error) {
+func iconMenuRect() (rect win32api.RECT, err error) {
 	// if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
-	if winHWND, err := ux.FindWindowByTitle(CONTEXT_MENU_TITLE); err == nil {
-		if _, err = win32.GetWindowRect(winHWND, &rect); err == nil {
+	if winHWND, err := win32windows.FindWindowByTitle(CONTEXT_MENU_TITLE); err == nil {
+		if _, err = win32api.GetWindowRect(winHWND, &rect); err == nil {
 			fmt.Printf("Rect for system tray t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
 		}
 	}
