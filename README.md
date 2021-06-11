@@ -22,8 +22,8 @@ there is a parent window class Shell_TrayWnd which contains several window / con
 
 ![win32ux](docs/diagrams/win32ux.jpg?raw=true)
 
-# Documenation 
+# Bibliography
 
-[1](https://docs.microsoft.com/en-us/windows/win32/uxguide/guidelines) win32 ux guide
-[2](https://docs.microsoft.com/en-us/windows/win32/api/_base/) win32 api
-[3](https://docs.microsoft.com/en-us/windows/win32/shell/notification-area) notification area
+* [win32 ux guide](https://docs.microsoft.com/en-us/windows/win32/uxguide/guidelines)   
+* [win32 api](https://docs.microsoft.com/en-us/windows/win32/api/_base/) 
+* [notification area](https://docs.microsoft.com/en-us/windows/win32/shell/notification-area) 
