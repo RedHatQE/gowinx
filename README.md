@@ -1,11 +1,11 @@
 # gowinx
 
-Simple library to handle ux components on windows with go. 
+Simple library to handle ux components on windows with go.  
 
-The framework allows to click on an icon identified by its name (button text, as button on a toolbar). From there get the handler
-for window holding the menu offering the functionality of the icon and click on specific buttons according to its text value. 
+The framework allows to click on an icon from the notification area. The icon should be identify by its name (text). After this,
+when the menu holding the functionality of the icon is displayed the framework allows to click on any specific button of the menu. Menu options shoud be identify by its name.  
 
-The framework clicl on buttons through the use of the mouse to mimic as much as possible the user experience (instead of relying on windows messaging mechanism)*
+The framework, calculate the coordenates of the elemens to click on them through the use of the mouse, this is intetional to mimic as much as possible the user experience (instead of relying on windows messaging mechanism)*
 
 *This option can be used but visualizations may differ from what expected.
 

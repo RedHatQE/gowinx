@@ -4,13 +4,9 @@ package notificationarea
 import (
 	"fmt"
 	"syscall"
-	"unsafe"
 
 	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
 )
-
-const MEM_COMMIT = 0x1000
-const PAGE_READWRITE = 0x04
 
 func GetHiddenIconsCount() (int32, error) {
 	return getIconsCountByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS)
@@ -79,67 +75,52 @@ func getControlRect(controlHandler syscall.Handle) (rect win32api.RECT, err erro
 	return
 }
 
-func GetButtonsTexts() {
-	// var err error
-	if toolbarHandler, err := getNotificationAreaToolbarByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS); err == nil {
-		buttonsCount, _ := win32api.SendMessage(toolbarHandler, win32api.TB_BUTTONCOUNT, 0, 0)
-		for i := 0; i < int(buttonsCount); i++ {
-			text, _ := getButtonText(toolbarHandler, int32(i))
-			fmt.Printf("The name of the button at index %d, is %s\n", i, text)
-		}
-	}
-}
-
-func getButtonText(toolbarHandler syscall.Handle, buttonIndex int32) (text string, err error) {
-	rect, _ := getControlRect(toolbarHandler)
-	fmt.Printf("Get rect top: %d, left: %d \n", rect.Top, rect.Left)
-	var tbProcessID uint32
-	toolbarThreadId, _ := win32api.GetWindowThreadProcessId(toolbarHandler, &tbProcessID)
-	fmt.Printf("ProcessId is %d ThreadId is %d \n", tbProcessID, toolbarThreadId)
-	processHandler, _ := win32api.OpenProcessAllAccess(false, tbProcessID)
-	fmt.Printf("ProcessHandler is %d \n", processHandler)
-	n := make([]byte, 256)
-	infoBaseAddress, _ := win32api.VirtualAllocEx(processHandler, 0, 256, MEM_COMMIT, PAGE_READWRITE)
-	fmt.Printf("Base adrress is %d \n", infoBaseAddress)
-	p := &n[0]
-	length, _ := win32api.SendMessage(
-		toolbarHandler,
-		win32api.TB_GETBUTTONTEXT,
-		uintptr(buttonIndex),
-		infoBaseAddress)
-
-	if length > 0 {
-		index, _ := win32api.SendMessage(
-			toolbarHandler,
-			win32api.TB_COMMANDTOINDEX,
-			uintptr(buttonIndex),
-			0)
-		var numRead uintptr
-		if dataRead, _ := win32api.ReadProcessMemory(processHandler, infoBaseAddress,
-			uintptr(unsafe.Pointer(p)),
-			length*2,
-			&numRead); !dataRead {
-			fmt.Print("Nothing read \n")
-		} else {
-			fmt.Printf("Button with index %d is %s\n", index, string(n[:numRead]))
-
-		}
-	} else {
-		fmt.Printf("Error requesting Buttontext %v\n", err)
-	}
-
-	return
-}
-
-// func GetNotifyToolbarHandler() (win.HWND, error) {
-// 	if handler, err := GetNotifyIconOverflowWindowHandler(); err != nil {
-// 		return win.HWND(0), err
-// 	} else {
-// 		if toolbarHandler := win.GetDlgItem(handler, NIOW_TOOLBAR32_ID); toolbarHandler > 0 {
-// 			return toolbarHandler, nil
+// func GetButtonsTexts() {
+// 	// var err error
+// 	if toolbarHandler, err := getNotificationAreaToolbarByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS); err == nil {
+// 		buttonsCount, _ := win32api.SendMessage(toolbarHandler, win32api.TB_BUTTONCOUNT, 0, 0)
+// 		for i := 0; i < int(buttonsCount); i++ {
+// 			text, _ := getButtonText(toolbarHandler, int32(i))
+// 			fmt.Printf("The name of the button at index %d, is %s\n", i, text)
 // 		}
 // 	}
-// 	return win.HWND(0), fmt.Errorf("Error getting NotifyToolbarHandler")
+// }
+
+// func getButtonText(toolbarHandler syscall.Handle, buttonIndex int32) (text string, err error) {
+// 	rect, _ := getControlRect(toolbarHandler)
+// 	fmt.Printf("Get rect top: %d, left: %d \n", rect.Top, rect.Left)
+// 	processHandler, _ := win32process.GetProcessHandler(toolbarHandler)
+// 	fmt.Printf("ProcessHandler is %d \n", processHandler)
+// 	n := make([]byte, 256)
+// 	infoBaseAddress, _ := win32process.AllocateMemory(processHandler, 256)
+// 	p := &n[0]
+// 	length, _ := win32api.SendMessage(
+// 		toolbarHandler,
+// 		win32api.TB_GETBUTTONTEXT,
+// 		uintptr(buttonIndex),
+// 		infoBaseAddress)
+
+// 	if length > 0 {
+// 		index, _ := win32api.SendMessage(
+// 			toolbarHandler,
+// 			win32api.TB_COMMANDTOINDEX,
+// 			uintptr(buttonIndex),
+// 			0)
+// 		var numRead uintptr
+// 		if dataRead, _ := win32api.ReadProcessMemory(processHandler, infoBaseAddress,
+// 			uintptr(unsafe.Pointer(p)),
+// 			length*2,
+// 			&numRead); !dataRead {
+// 			fmt.Print("Nothing read \n")
+// 		} else {
+// 			fmt.Printf("Button with index %d is %s\n", index, string(n[:numRead]))
+
+// 		}
+// 	} else {
+// 		fmt.Printf("Error requesting Buttontext %v\n", err)
+// 	}
+
+// 	return
 // }
 
 // Kernel32.VirtualFreeEx(

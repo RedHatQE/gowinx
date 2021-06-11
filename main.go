@@ -2,10 +2,6 @@
 
 package main
 
-import (
-	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
-)
-
 func main() {
 
 	// WORKING
@@ -33,12 +29,15 @@ func main() {
 	// NOT WORKING
 
 	// notificationarea.GetIconByTittle("Codeready Containers")
-	notificationarea.ShowHiddenNotificationArea()
+
 	// rect, _ := notificationarea.GetIconRectByTittle("Codeready Containers")
 	// ux.ClickOnRect(rect)
 	// Get notification icon check tray notifications to system
 	// notificationarea.FindChildElement("TrayButton"
 
-	notificationarea.GetButtonsTexts()
+	// WORKING
+	//required to show the hidden area to get visual info like rect
+	// notificationarea.ShowHiddenNotificationArea()
+	// notificationarea.GetButtonsTexts()
 
 }
