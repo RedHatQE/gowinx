@@ -62,7 +62,6 @@ func MenuItemPosition(menuItemName string) (x, y int32) {
 }
 
 func iconMenuRect() (rect win32api.RECT, err error) {
-	// if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
 	if winHWND, err := win32windows.FindWindowByTitle(CONTEXT_MENU_TITLE); err == nil {
 		if _, err = win32api.GetWindowRect(winHWND, &rect); err == nil {
 			fmt.Printf("Rect for system tray t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)

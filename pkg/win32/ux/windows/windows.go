@@ -8,6 +8,8 @@ import (
 	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
 )
 
+// To get a windows by title among all the windows on the system, it is required
+// to loop over all the windows and get the one with the same title text
 func FindWindowByTitle(title string) (syscall.Handle, error) {
 	var hwnd syscall.Handle
 	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
@@ -39,4 +41,51 @@ func FindWindowByClass(class string) (syscall.Handle, error) {
 func FindWindowExByClass(parentHandler syscall.Handle, class string) (syscall.Handle, error) {
 	z := uint16(0)
 	return win32api.FindWindowEx(parentHandler, syscall.Handle(0), syscall.StringToUTF16Ptr(class), &z)
+}
+
+// Get all child windows whith class
+func FindChildWindowsbyClass(hwndParent syscall.Handle, class string) ([]syscall.Handle, error) {
+	var hwnds []syscall.Handle
+	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
+		elementClassName, err := win32api.GetClassName(h)
+		if err != nil {
+			return 1 // continue enumeration
+		}
+		if elementClassName == class {
+			hwnds = append(hwnds, h)
+		}
+		return 1 // continue enumeration
+	})
+	win32api.EnumChildWindows(hwndParent, cb, 0)
+	if len(hwnds) == 0 {
+		return hwnds, fmt.Errorf("No child element with classname %s\n", class)
+	}
+	return hwnds, nil
+}
+
+// Get child window with title
+func FindChildWindowByTitle(hwndParent syscall.Handle, title string) (syscall.Handle, int32, error) {
+	var hwnd syscall.Handle
+	var elementIndex int32
+	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
+		b := make([]uint16, 200)
+		_, err := win32api.GetWindowText(h, &b[0], int32(len(b)))
+		if err != nil {
+			elementIndex++
+		}
+		elementTitle := syscall.UTF16ToString(b)
+		fmt.Printf("looking for child elements got: %s\n", elementTitle)
+		if elementTitle == title {
+			hwnd = h
+			return 0 // stop enumeration
+		}
+		elementIndex++
+		return 1 // continue enumeration
+	})
+	win32api.EnumChildWindows(hwndParent, cb, 0)
+	if hwnd == 0 {
+		fmt.Printf("Error the expected element with title %s\n", title)
+		return 0, 0, fmt.Errorf("No window with title '%s' found", title)
+	}
+	return hwnd, elementIndex, nil
 }

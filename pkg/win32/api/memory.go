@@ -9,6 +9,7 @@ import (
 var (
 	virtualAllocEx    = kernel32.MustFindProc("VirtualAllocEx")
 	readProcessMemory = kernel32.MustFindProc("ReadProcessMemory")
+	virtualFreeEx     = kernel32.MustFindProc("VirtualFreeEx")
 )
 
 // https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualallocex
@@ -46,6 +47,25 @@ func ReadProcessMemory(hProcess syscall.Handle, lpBaseAddress, lpBuffer, nSize u
 		uintptr(lpBuffer),
 		uintptr(nSize),
 		uintptr(unsafe.Pointer(numRead)),
+		0)
+	success, err = evalSyscallBool(r0, e1)
+	return
+}
+
+// https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualfreeex
+// BOOL VirtualFreeEx(
+// 	HANDLE hProcess,
+// 	LPVOID lpAddress,
+// 	SIZE_T dwSize,
+// 	DWORD  dwFreeType
+// );
+func VirtualFreeEx(hProcess syscall.Handle, lpBaseAddress, dwSize uintptr, dwFreeType uint32) (success bool, err error) {
+	r0, _, e1 := syscall.Syscall6(virtualFreeEx.Addr(), 4,
+		uintptr(hProcess),
+		uintptr(lpBaseAddress),
+		uintptr(dwSize),
+		uintptr(dwFreeType),
+		0,
 		0)
 	success, err = evalSyscallBool(r0, e1)
 	return

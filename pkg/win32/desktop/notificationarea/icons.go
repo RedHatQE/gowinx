@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
+	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
 
 func GetHiddenIconsCount() (int32, error) {
@@ -44,7 +45,7 @@ func GetIconByTittle(title string) syscall.Handle {
 	toolbarHandlers, _ := findToolbars()
 	for i, toolbarHandler := range toolbarHandlers {
 		fmt.Printf("Looking for %s at toolbar index %d\n", title, i)
-		iconHandler, iconIndex, err := findElementByTitle(toolbarHandler, title)
+		iconHandler, iconIndex, err := win32windows.FindChildWindowByTitle(toolbarHandler, title)
 		if err == nil {
 			fmt.Printf("We found the icon for %s at index %d\n", title, iconIndex)
 			return iconHandler
@@ -57,7 +58,7 @@ func GetIconRectByTittle(title string) (rect win32api.RECT, err error) {
 	toolbarHandlers, _ := findToolbars()
 	for i, toolbarHandler := range toolbarHandlers {
 		fmt.Printf("Looking for %s at toolbar index %d\n", title, i)
-		iconHandler, iconIndex, err := findElementByTitle(toolbarHandler, title)
+		iconHandler, iconIndex, err := win32windows.FindChildWindowByTitle(toolbarHandler, title)
 		if err == nil {
 			fmt.Printf("We found the icon for %s at index %d\n", title, iconIndex)
 			rect, err = getControlRect(iconHandler)
@@ -80,53 +81,9 @@ func getControlRect(controlHandler syscall.Handle) (rect win32api.RECT, err erro
 // 	if toolbarHandler, err := getNotificationAreaToolbarByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS); err == nil {
 // 		buttonsCount, _ := win32api.SendMessage(toolbarHandler, win32api.TB_BUTTONCOUNT, 0, 0)
 // 		for i := 0; i < int(buttonsCount); i++ {
-// 			text, _ := getButtonText(toolbarHandler, int32(i))
-// 			fmt.Printf("The name of the button at index %d, is %s\n", i, text)
+// 			text, _ := win32toolbar.GetButtonText(toolbarHandler, i)
+// 			index := win32toolbar.GetButtonIndex(toolbarHandler, i)
+// 			fmt.Printf("The name of the button at index %d, is %s\n", index, text)
 // 		}
 // 	}
 // }
-
-// func getButtonText(toolbarHandler syscall.Handle, buttonIndex int32) (text string, err error) {
-// 	rect, _ := getControlRect(toolbarHandler)
-// 	fmt.Printf("Get rect top: %d, left: %d \n", rect.Top, rect.Left)
-// 	processHandler, _ := win32process.GetProcessHandler(toolbarHandler)
-// 	fmt.Printf("ProcessHandler is %d \n", processHandler)
-// 	n := make([]byte, 256)
-// 	infoBaseAddress, _ := win32process.AllocateMemory(processHandler, 256)
-// 	p := &n[0]
-// 	length, _ := win32api.SendMessage(
-// 		toolbarHandler,
-// 		win32api.TB_GETBUTTONTEXT,
-// 		uintptr(buttonIndex),
-// 		infoBaseAddress)
-
-// 	if length > 0 {
-// 		index, _ := win32api.SendMessage(
-// 			toolbarHandler,
-// 			win32api.TB_COMMANDTOINDEX,
-// 			uintptr(buttonIndex),
-// 			0)
-// 		var numRead uintptr
-// 		if dataRead, _ := win32api.ReadProcessMemory(processHandler, infoBaseAddress,
-// 			uintptr(unsafe.Pointer(p)),
-// 			length*2,
-// 			&numRead); !dataRead {
-// 			fmt.Print("Nothing read \n")
-// 		} else {
-// 			fmt.Printf("Button with index %d is %s\n", index, string(n[:numRead]))
-
-// 		}
-// 	} else {
-// 		fmt.Printf("Error requesting Buttontext %v\n", err)
-// 	}
-
-// 	return
-// }
-
-// Kernel32.VirtualFreeEx(
-// 	hProcess,
-// 	ipRemoteBuffer,
-// 	UIntPtr.Zero,
-// 	MemAllocationType.RELEASE );
-
-// Kernel32.CloseHandle( hProcess );

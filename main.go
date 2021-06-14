@@ -2,6 +2,11 @@
 
 package main
 
+import (
+	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
+	"github.com/adrianriobo/gowinx/pkg/win32/ux/interaction"
+)
+
 func main() {
 
 	// WORKING
@@ -37,7 +42,9 @@ func main() {
 
 	// WORKING
 	//required to show the hidden area to get visual info like rect
-	// notificationarea.ShowHiddenNotificationArea()
-	// notificationarea.GetButtonsTexts()
+	notificationarea.ShowHiddenNotificationArea()
+	if x, y, err := notificationarea.GetIconPositionByTitle("Codeready Containers"); err == nil {
+		interaction.Click(int32(x), int32(y))
+	}
 
 }

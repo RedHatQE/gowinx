@@ -6,7 +6,8 @@ import (
 	"syscall"
 
 	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
-	"github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
+	win32toolbar "github.com/adrianriobo/gowinx/pkg/win32/ux/commands/toolbar"
+	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
 
 // systemtray aka notification area, it is composed of notifications icons (offering display the status and various functions)
@@ -43,7 +44,7 @@ func ShowHiddenNotificationArea() (err error) {
 }
 
 func getNotificationAreaWindowByClass(className string) (handler syscall.Handle, err error) {
-	if handler, err = windows.FindWindowByClass(className); err != nil {
+	if handler, err = win32windows.FindWindowByClass(className); err != nil {
 		fmt.Printf("error getting handler on notification area for windows class: %s, error: %v\n", className, err)
 	}
 	return
@@ -56,4 +57,22 @@ func getNotificationAreaToolbarByWindowClass(className string) (handler syscall.
 		}
 	}
 	return
+}
+
+func GetIconPositionByTitle(buttonText string) (int, int, error) {
+	toolbarHandlers, _ := findToolbars()
+	for _, toolbarHandler := range toolbarHandlers {
+		if x, y, err := win32toolbar.GetButtonClickablePosition(toolbarHandler, buttonText); err == nil {
+			return x, y, nil
+		}
+	}
+	return -1, -1, fmt.Errorf("button %s not found on toolbar\n", buttonText)
+
+}
+
+// The notification area is composed of elements, app notification icons use to be placed
+// at the toolbars
+func findToolbars() ([]syscall.Handle, error) {
+	handler, _ := win32windows.FindWindowByClass(NOTIFICATION_AREA_VISIBLE_WINDOW_CLASS)
+	return win32toolbar.FindToolbars(handler)
 }
