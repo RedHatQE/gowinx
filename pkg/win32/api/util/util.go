@@ -1,5 +1,5 @@
 // +build windows
-package win32
+package util
 
 import "syscall"
 
@@ -7,7 +7,7 @@ func MakeLPARAM(hiword uint16, loword uint16) uintptr {
 	return uintptr((hiword << 16) | uint16(loword&0xffff))
 }
 
-func evalSyscallHandler(r0 uintptr, e1 syscall.Errno) (hwnd syscall.Handle, err error) {
+func EvalSyscallHandler(r0 uintptr, e1 syscall.Errno) (hwnd syscall.Handle, err error) {
 	hwnd = syscall.Handle(r0)
 	if e1 != 0 {
 		if e1 != 0 {
@@ -19,7 +19,7 @@ func evalSyscallHandler(r0 uintptr, e1 syscall.Errno) (hwnd syscall.Handle, err 
 	return
 }
 
-func evalSyscallInt32(r0 uintptr, e1 syscall.Errno) (value int32, err error) {
+func EvalSyscallInt32(r0 uintptr, e1 syscall.Errno) (value int32, err error) {
 	if r0 == 0 {
 		if e1 != 0 {
 			err = error(e1)
@@ -31,7 +31,7 @@ func evalSyscallInt32(r0 uintptr, e1 syscall.Errno) (value int32, err error) {
 	return
 }
 
-func evalSyscallBool(r0 uintptr, e1 syscall.Errno) (value bool, err error) {
+func EvalSyscallBool(r0 uintptr, e1 syscall.Errno) (value bool, err error) {
 	if r0 == 0 {
 		value = false
 		if e1 != 0 {

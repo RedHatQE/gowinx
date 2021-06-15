@@ -1,5 +1,5 @@
 // +build windows
-package win32
+package windows_and_messages
 
 // https://docs.microsoft.com/en-us/windows/win32/api/windef/ns-windef-rect
 // typedef struct tagRECT {

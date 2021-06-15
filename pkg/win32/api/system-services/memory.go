@@ -1,9 +1,11 @@
 // +build windows
-package win32
+package system_services
 
 import (
 	"syscall"
 	"unsafe"
+
+	"github.com/adrianriobo/gowinx/pkg/win32/api/util"
 )
 
 var (
@@ -48,7 +50,7 @@ func ReadProcessMemory(hProcess syscall.Handle, lpBaseAddress, lpBuffer, nSize u
 		uintptr(nSize),
 		uintptr(unsafe.Pointer(numRead)),
 		0)
-	success, err = evalSyscallBool(r0, e1)
+	success, err = util.EvalSyscallBool(r0, e1)
 	return
 }
 
@@ -67,6 +69,6 @@ func VirtualFreeEx(hProcess syscall.Handle, lpBaseAddress, dwSize uintptr, dwFre
 		uintptr(dwFreeType),
 		0,
 		0)
-	success, err = evalSyscallBool(r0, e1)
+	success, err = util.EvalSyscallBool(r0, e1)
 	return
 }

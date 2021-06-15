@@ -4,15 +4,11 @@ package crc
 import (
 	"fmt"
 
-	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
 	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
 
 const (
-	// OS dependant
-	// https://stackoverflow.com/questions/19436860/go-golang-trying-to-get-window-information-via-syscall-as-in-enumwindows-etc
-	// https://gist.github.com/EliCDavis/5374fa4947897b16a81f6550d142ab28
-	CONTEXT_MENU_CLASS string = "WindowsForms10.Window.20808.app.0.232467a_r7_ad1"
 	CONTEXT_MENU_TITLE string = "crcText"
 
 	CONTEXT_MENU_MARGIN_TOP            int32 = 2
@@ -58,13 +54,16 @@ func MenuItemPosition(menuItemName string) (x, y int32) {
 		x = x + iconMenuRect.Left
 		y = y + iconMenuRect.Top
 	}
+	fmt.Printf("Get button on menu %s X:%d y:%d\n", menuItemName, x, y)
 	return
 }
 
-func iconMenuRect() (rect win32api.RECT, err error) {
-	if winHWND, err := win32windows.FindWindowByTitle(CONTEXT_MENU_TITLE); err == nil {
-		if _, err = win32api.GetWindowRect(winHWND, &rect); err == nil {
+func iconMenuRect() (rect win32wam.RECT, err error) {
+	winHWND, err := win32windows.FindWindowByTitle(CONTEXT_MENU_TITLE)
+	if err == nil {
+		if _, err = win32wam.GetWindowRect(winHWND, &rect); err == nil {
 			fmt.Printf("Rect for system tray t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
+			return
 		}
 	}
 	fmt.Print("error getting icon menu window handler")
@@ -77,25 +76,10 @@ func menuItemRelativePosition(menuItemName string) (x, y int32) {
 	for _, menuitem := range contextMenu {
 		if menuitem.Name == menuItemName {
 			y = y + (menuitem.Height / 2)
-			fmt.Printf("Get button %s X coord at %d\n", menuItemName, x)
 			break
 		}
 		y = y + menuitem.Height
 	}
+	fmt.Printf("Get button relative %s X:%d y:%d\n", menuItemName, x, y)
 	return
 }
-
-// Give a try to click directly sending messages
-// func ClickMenuItem(position int) {
-// 	// if winHWND := ux.FinWindowByClassAndTitle(CONTEXT_MENU_CLASS, CONTEXT_MENU_TITLE); winHWND > 0 {
-// 	if winHWND, err := ux.FindWindowByTitle(CONTEXT_MENU_TITLE); err == nil {
-// 		// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmenu#remarks
-// 		if menuHandler := windows.GetMenu(winHWND); menuHandler > 0 {
-// 			if menuItemID := win.GetMenuItemID(menuHandler, int32(position)); menuItemID > 0 {
-// 				fmt.Printf("We got menu item ID %d", menuItemID)
-// 				win.SendMessage(winHWND, win.WM_COMMAND, windows.MakeLPARAM(0, uint16(menuItemID)), 0)
-// 			}
-// 		}
-
-// 	}
-// }

@@ -1,5 +1,5 @@
 // +build windows
-package win32
+package system_services
 
 import (
 	"syscall"
@@ -7,5 +7,4 @@ import (
 
 var (
 	kernel32 = syscall.MustLoadDLL("kernel32.dll")
-	user32   = syscall.MustLoadDLL("user32.dll")
 )

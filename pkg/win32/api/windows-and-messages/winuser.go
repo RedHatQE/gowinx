@@ -1,9 +1,11 @@
 // +build windows
-package win32
+package windows_and_messages
 
 import (
 	"syscall"
 	"unsafe"
+
+	"github.com/adrianriobo/gowinx/pkg/win32/api/util"
 )
 
 var (
@@ -36,7 +38,7 @@ func EnumWindows(enumFunc uintptr, lparam uintptr) (success bool, err error) {
 		uintptr(enumFunc),
 		uintptr(lparam),
 		0)
-	success, err = evalSyscallBool(r0, e1)
+	success, err = util.EvalSyscallBool(r0, e1)
 	return
 }
 
@@ -79,7 +81,7 @@ func GetWindowText(hWnd syscall.Handle, str *uint16, maxCount int32) (len int32,
 			uintptr(hWnd),
 			uintptr(unsafe.Pointer(str)),
 			uintptr(maxCount))
-		len, err = evalSyscallInt32(r0, e1)
+		len, err = util.EvalSyscallInt32(r0, e1)
 	}
 	return
 }
@@ -94,7 +96,7 @@ func FindWindowW(lpClassName, lpWindowName *uint16) (hwnd syscall.Handle, err er
 		uintptr(unsafe.Pointer(lpClassName)),
 		uintptr(unsafe.Pointer(lpWindowName)),
 		0)
-	hwnd, err = evalSyscallHandler(r0, e1)
+	hwnd, err = util.EvalSyscallHandler(r0, e1)
 	return
 }
 
@@ -113,7 +115,7 @@ func FindWindowEx(hwndParent, hwndChildAfter syscall.Handle, lpszClass, lpszWind
 		uintptr(unsafe.Pointer(lpszWindow)),
 		0,
 		0)
-	hwnd, err = evalSyscallHandler(r0, e1)
+	hwnd, err = util.EvalSyscallHandler(r0, e1)
 	return
 }
 
@@ -124,7 +126,7 @@ func GetForegroundWindow() (hwnd syscall.Handle, err error) {
 		0,
 		0,
 		0)
-	hwnd, err = evalSyscallHandler(r0, e1)
+	hwnd, err = util.EvalSyscallHandler(r0, e1)
 	return
 }
 
@@ -196,7 +198,7 @@ func GetSystemMetrics(nIndex int32) (metric int32, err error) {
 		uintptr(nIndex),
 		0,
 		0)
-	metric, err = evalSyscallInt32(r0, e1)
+	metric, err = util.EvalSyscallInt32(r0, e1)
 	return
 }
 
@@ -211,7 +213,7 @@ func SendInput(cInputs uint32, pInputs unsafe.Pointer, cbSize int32) (successedE
 		uintptr(cInputs),
 		uintptr(pInputs),
 		uintptr(cbSize))
-	successedEventsNumber, err = evalSyscallInt32(r0, e1)
+	successedEventsNumber, err = util.EvalSyscallInt32(r0, e1)
 	return
 }
 
@@ -225,7 +227,7 @@ func GetWindowRect(hWnd syscall.Handle, rect *RECT) (success bool, err error) {
 		uintptr(hWnd),
 		uintptr(unsafe.Pointer(rect)),
 		0)
-	success, err = evalSyscallBool(r0, e1)
+	success, err = util.EvalSyscallBool(r0, e1)
 	return
 }
 
@@ -239,7 +241,7 @@ func GetDlgItem(hDlg syscall.Handle, nIDDlgItem int32) (hwnd syscall.Handle, err
 		uintptr(hDlg),
 		uintptr(nIDDlgItem),
 		0)
-	hwnd, err = evalSyscallHandler(r0, e1)
+	hwnd, err = util.EvalSyscallHandler(r0, e1)
 	return
 }
 
@@ -253,7 +255,7 @@ func ShowWindow(hWnd syscall.Handle, nCmdShow int32) (hidden bool, err error) {
 		uintptr(hWnd),
 		uintptr(nCmdShow),
 		0)
-	hidden, err = evalSyscallBool(r0, e1)
+	hidden, err = util.EvalSyscallBool(r0, e1)
 	return
 }
 
@@ -266,7 +268,7 @@ func IsWindowUnicode(hWnd syscall.Handle) (isUnicode bool, err error) {
 		uintptr(hWnd),
 		0,
 		0)
-	isUnicode, err = evalSyscallBool(r0, e1)
+	isUnicode, err = util.EvalSyscallBool(r0, e1)
 	return
 }
 
@@ -280,6 +282,6 @@ func GetWindowThreadProcessId(hWnd syscall.Handle, lpdwProcessId *uint32) (windo
 		uintptr(hWnd),
 		uintptr(unsafe.Pointer(lpdwProcessId)),
 		0)
-	windowCreatorThreadId, err = evalSyscallInt32(r0, e1)
+	windowCreatorThreadId, err = util.EvalSyscallInt32(r0, e1)
 	return
 }

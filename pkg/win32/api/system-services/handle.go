@@ -1,7 +1,11 @@
 // +build windows
-package win32
+package system_services
 
-import "syscall"
+import (
+	"syscall"
+
+	"github.com/adrianriobo/gowinx/pkg/win32/api/util"
+)
 
 var (
 	closeHandle = kernel32.MustFindProc("CloseHandle")
@@ -16,6 +20,6 @@ func CloseHandle(hObject syscall.Handle) (success bool, err error) {
 		uintptr(hObject),
 		0,
 		0)
-	success, err = evalSyscallBool(r0, e1)
+	success, err = util.EvalSyscallBool(r0, e1)
 	return
 }

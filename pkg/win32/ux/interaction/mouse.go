@@ -6,7 +6,7 @@ import (
 	"time"
 	"unsafe"
 
-	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
 )
 
 const (
@@ -27,7 +27,7 @@ type MOUSEINPUT struct {
 	DwExtraInfo uintptr
 }
 
-func ClickOnRect(rect win32api.RECT) error {
+func ClickOnRect(rect win32wam.RECT) error {
 	x := ((rect.Right - rect.Left) / 2) + rect.Left
 	y := ((rect.Bottom - rect.Top) / 2) + rect.Top
 	return Click(x, y)
@@ -35,9 +35,9 @@ func ClickOnRect(rect win32api.RECT) error {
 
 func Click(x, y int32) error {
 	events := [3]uint32{
-		win32api.MOUSEEVENTF_ABSOLUTE | win32api.MOUSEEVENTF_MOVE,
-		win32api.MOUSEEVENTF_LEFTDOWN,
-		win32api.MOUSEEVENTF_LEFTUP}
+		win32wam.MOUSEEVENTF_ABSOLUTE | win32wam.MOUSEEVENTF_MOVE,
+		win32wam.MOUSEEVENTF_LEFTDOWN,
+		win32wam.MOUSEEVENTF_LEFTUP}
 	for _, event := range events {
 		time.Sleep(elementClickDelay)
 		if err := mouseInput(x, y, uint32(event)); err != nil {
@@ -50,9 +50,9 @@ func Click(x, y int32) error {
 func mouseInput(x, y int32, dwFlags uint32) error {
 	dx := getDX(x)
 	dy := getDY(y)
-	fmt.Printf("Click done at x:%d y:%d \n", dx, dy)
+	// fmt.Printf("Click done at x:%d y:%d \n", dx, dy)
 	mouseInput := MOUSE_INPUT{
-		Type: win32api.INPUT_MOUSE,
+		Type: win32wam.INPUT_MOUSE,
 		Mi: MOUSEINPUT{
 			Dx:          dx,
 			Dy:          dy,
@@ -63,8 +63,8 @@ func mouseInput(x, y int32, dwFlags uint32) error {
 
 	actions := [1]MOUSE_INPUT{mouseInput}
 
-	if success, err := win32api.SendInput(uint32(2), unsafe.Pointer(&actions), int32(unsafe.Sizeof(mouseInput))); err == nil {
-		fmt.Printf("Input sent successfull returns %d actions\n", success)
+	if success, err := win32wam.SendInput(uint32(2), unsafe.Pointer(&actions), int32(unsafe.Sizeof(mouseInput))); success > 0 {
+		// fmt.Printf("Input sent successfull returns %d actions\n", success)
 		return nil
 	} else {
 		return err
@@ -72,15 +72,15 @@ func mouseInput(x, y int32, dwFlags uint32) error {
 }
 
 func getDX(x int32) int32 {
-	return getDAxisValue(x, win32api.SM_CXSCREEN)
+	return getDAxisValue(x, win32wam.SM_CXSCREEN)
 }
 
 func getDY(y int32) int32 {
-	return getDAxisValue(y, win32api.SM_CYSCREEN)
+	return getDAxisValue(y, win32wam.SM_CYSCREEN)
 }
 
 func getDAxisValue(axisValue, systemMetricConstant int32) int32 {
-	if metric, err := win32api.GetSystemMetrics(systemMetricConstant); err == nil {
+	if metric, err := win32wam.GetSystemMetrics(systemMetricConstant); err == nil {
 		return (axisValue * 65536) / metric
 	} else {
 		fmt.Print(err)

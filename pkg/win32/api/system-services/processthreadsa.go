@@ -1,8 +1,10 @@
 // +build windows
-package win32
+package system_services
 
 import (
 	"syscall"
+
+	"github.com/adrianriobo/gowinx/pkg/win32/api/util"
 )
 
 var (
@@ -20,7 +22,7 @@ func OpenProcess(dwDesiredAccess, bInheritHandle uint32, dwProcessId uint32) (ha
 		uintptr(dwDesiredAccess),
 		uintptr(bInheritHandle),
 		uintptr(dwProcessId))
-	handle, err = evalSyscallHandler(r0, e1)
+	handle, err = util.EvalSyscallHandler(r0, e1)
 	return
 }
 

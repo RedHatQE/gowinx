@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"syscall"
 
-	win32api "github.com/adrianriobo/gowinx/pkg/win32/api"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
 )
 
 // To get a windows by title among all the windows on the system, it is required
@@ -14,7 +14,7 @@ func FindWindowByTitle(title string) (syscall.Handle, error) {
 	var hwnd syscall.Handle
 	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
 		b := make([]uint16, 200)
-		_, err := win32api.GetWindowText(h, &b[0], int32(len(b)))
+		_, err := win32wam.GetWindowText(h, &b[0], int32(len(b)))
 		if err != nil {
 			// ignore the error
 			return 1 // continue enumeration
@@ -26,7 +26,7 @@ func FindWindowByTitle(title string) (syscall.Handle, error) {
 		}
 		return 1 // continue enumeration
 	})
-	win32api.EnumWindows(cb, 0)
+	win32wam.EnumWindows(cb, 0)
 	if hwnd == 0 {
 		return 0, fmt.Errorf("No window with title '%s' found", title)
 	}
@@ -35,19 +35,19 @@ func FindWindowByTitle(title string) (syscall.Handle, error) {
 
 func FindWindowByClass(class string) (syscall.Handle, error) {
 	z := uint16(0)
-	return win32api.FindWindowW(syscall.StringToUTF16Ptr(class), &z)
+	return win32wam.FindWindowW(syscall.StringToUTF16Ptr(class), &z)
 }
 
 func FindWindowExByClass(parentHandler syscall.Handle, class string) (syscall.Handle, error) {
 	z := uint16(0)
-	return win32api.FindWindowEx(parentHandler, syscall.Handle(0), syscall.StringToUTF16Ptr(class), &z)
+	return win32wam.FindWindowEx(parentHandler, syscall.Handle(0), syscall.StringToUTF16Ptr(class), &z)
 }
 
 // Get all child windows whith class
 func FindChildWindowsbyClass(hwndParent syscall.Handle, class string) ([]syscall.Handle, error) {
 	var hwnds []syscall.Handle
 	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
-		elementClassName, err := win32api.GetClassName(h)
+		elementClassName, err := win32wam.GetClassName(h)
 		if err != nil {
 			return 1 // continue enumeration
 		}
@@ -56,7 +56,7 @@ func FindChildWindowsbyClass(hwndParent syscall.Handle, class string) ([]syscall
 		}
 		return 1 // continue enumeration
 	})
-	win32api.EnumChildWindows(hwndParent, cb, 0)
+	win32wam.EnumChildWindows(hwndParent, cb, 0)
 	if len(hwnds) == 0 {
 		return hwnds, fmt.Errorf("No child element with classname %s\n", class)
 	}
@@ -69,7 +69,7 @@ func FindChildWindowByTitle(hwndParent syscall.Handle, title string) (syscall.Ha
 	var elementIndex int32
 	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
 		b := make([]uint16, 200)
-		_, err := win32api.GetWindowText(h, &b[0], int32(len(b)))
+		_, err := win32wam.GetWindowText(h, &b[0], int32(len(b)))
 		if err != nil {
 			elementIndex++
 		}
@@ -82,10 +82,33 @@ func FindChildWindowByTitle(hwndParent syscall.Handle, title string) (syscall.Ha
 		elementIndex++
 		return 1 // continue enumeration
 	})
-	win32api.EnumChildWindows(hwndParent, cb, 0)
+	win32wam.EnumChildWindows(hwndParent, cb, 0)
 	if hwnd == 0 {
 		fmt.Printf("Error the expected element with title %s\n", title)
 		return 0, 0, fmt.Errorf("No window with title '%s' found", title)
 	}
 	return hwnd, elementIndex, nil
+}
+
+// Get all child windows whith class
+func FindChildren(hwndParent syscall.Handle) ([]syscall.Handle, error) {
+	var hwnds []syscall.Handle
+	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
+		elementClassName, err := win32wam.GetClassName(h)
+		if err != nil {
+			return 1 // continue enumeration
+		}
+		fmt.Printf("looking for child elements got: %s\n", elementClassName)
+		b := make([]uint16, 200)
+		_, err = win32wam.GetWindowText(h, &b[0], int32(len(b)))
+		if err != nil {
+			return 1 // continue enumeration
+		}
+		elementTitle := syscall.UTF16ToString(b)
+		fmt.Printf("looking for child elements got: %s\n", elementTitle)
+		hwnds = append(hwnds, h)
+		return 1 // continue enumeration
+	})
+	win32wam.EnumChildWindows(hwndParent, cb, 0)
+	return hwnds, nil
 }
