@@ -4,82 +4,93 @@ package crc
 import (
 	"fmt"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
-	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
+	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/windows-accesibility-features"
+	"github.com/adrianriobo/gowinx/pkg/win32/desktop/menu"
+	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
+	"github.com/adrianriobo/gowinx/pkg/win32/ux/interaction"
 )
 
 const (
-	CONTEXT_MENU_TITLE string = "crcText"
+	notification_icon_id string = "Codeready Containers"
 
-	CONTEXT_MENU_MARGIN_TOP            int32 = 2
-	CONTEXT_MENU_ITEM_SEPARATOR_HEIGHT int32 = 6
-	CONTEXT_MENU_ITEM_HEIGHT           int32 = 22
-	CONTEXT_MENU_ITEM_WIDTH            int32 = 215
+	menu_id string = "crc"
 
-	CONTEXT_MENU_ITEM_SEPARATOR       string = "separator"
-	CONTEXT_MENU_ITEM_STATUS          string = "status"
-	CONTEXT_MENU_ITEM_STATUS_AND_LOGS string = "status-and-logs"
-	CONTEXT_MENU_ITEM_START           string = "start"
-	CONTEXT_MENU_ITEM_STOP            string = "stop"
-	CONTEXT_MENU_ITEM_DELETE          string = "delete"
+	ACTION_START       string = "START"
+	menuitem_start_id  string = "crc-start"
+	ACTION_STOP        string = "STOP"
+	menuitem_stop_id   string = "crc-stop"
+	ACTION_DELETE      string = "DELETE"
+	menuitem_delete_id string = "crc-delete"
+	ACTION_EXIT        string = "EXIT"
+	menuitem_exit_id   string = "crc-exit"
+
+	ACTION_COPY_OC_COMMAND                string = "COPY_OC_COMMAND"
+	menuitem_copy_oc_command_id           string = "copy-oc-command"
+	ACTION_COPY_OC_COMMAND_DEVELOPER      string = "COPY_OC_COMMAND_DEVELOPER"
+	menuitem_copy_oc_command_developer_id string = "copy-oc-command-developer"
+	ACTION_COPY_OC_COMMAND_KUBEADMIN      string = "COPY_OC_COMMAND_KUBEADMIN"
+	menuitem_copy_oc_command_kubeadmin_id string = "copy-oc-command-kubeadmin"
 )
 
-type contextMenuItem struct {
-	Height int32
-	Name   string
+var simpleClickActions map[string]string
+var doubleClickActions map[string]string
+
+func init() {
+	simpleClickActions = map[string]string{
+		ACTION_START:                     menuitem_start_id,
+		ACTION_STOP:                      menuitem_stop_id,
+		ACTION_DELETE:                    menuitem_delete_id,
+		ACTION_EXIT:                      menuitem_exit_id,
+		ACTION_COPY_OC_COMMAND_DEVELOPER: menuitem_copy_oc_command_developer_id,
+		ACTION_COPY_OC_COMMAND_KUBEADMIN: menuitem_copy_oc_command_kubeadmin_id}
+
+	doubleClickActions = map[string]string{
+		ACTION_COPY_OC_COMMAND: menuitem_copy_oc_command_id}
 }
 
-func separator() contextMenuItem {
-	return contextMenuItem{Height: CONTEXT_MENU_ITEM_SEPARATOR_HEIGHT, Name: CONTEXT_MENU_ITEM_SEPARATOR}
-}
-
-func menuItem(menuItemName string) contextMenuItem {
-	return contextMenuItem{Height: CONTEXT_MENU_ITEM_HEIGHT, Name: menuItemName}
-}
-
-var (
-	contextMenu = [13]contextMenuItem{
-		menuItem(CONTEXT_MENU_ITEM_STATUS),
-		separator(),
-		menuItem(CONTEXT_MENU_ITEM_STATUS_AND_LOGS),
-		separator(),
-		menuItem(CONTEXT_MENU_ITEM_START),
-		menuItem(CONTEXT_MENU_ITEM_STOP),
-		menuItem(CONTEXT_MENU_ITEM_DELETE)}
-)
-
-func MenuItemPosition(menuItemName string) (x, y int32) {
-	if iconMenuRect, err := iconMenuRect(); err == nil {
-		x, y = menuItemRelativePosition(menuItemName)
-		x = x + iconMenuRect.Left
-		y = y + iconMenuRect.Top
+func Click(action string) {
+	// Click on icon from notification area
+	notificationarea.ShowHiddenNotificationArea()
+	if x, y, err := notificationarea.GetIconPositionByTitle(notification_icon_id); err == nil {
+		interaction.Click(int32(x), int32(y))
 	}
-	fmt.Printf("Get button on menu %s X:%d y:%d\n", menuItemName, x, y)
-	return
+
+	// With the menu displed click on action
+	if checkDoubleAction(action) {
+		clickDoubleAction(action)
+	} else {
+		clickSimpleAction(action)
+	}
 }
 
-func iconMenuRect() (rect win32wam.RECT, err error) {
-	winHWND, err := win32windows.FindWindowByTitle(CONTEXT_MENU_TITLE)
-	if err == nil {
-		if _, err = win32wam.GetWindowRect(winHWND, &rect); err == nil {
-			fmt.Printf("Rect for system tray t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
-			return
-		}
+func clickSimpleAction(action string) error {
+	menuitem_id, ok := simpleClickActions[action]
+	if !ok {
+		return fmt.Errorf("No action defined %s", action)
 	}
-	fmt.Print("error getting icon menu window handler")
-	return
+	win32waf.Initalize()
+	crcMenu, err := menu.GetMenuFromRoot(menu_id)
+	if err != nil {
+		return err
+	}
+	menuitem, err := menu.GetMenuItem(crcMenu, menuitem_id)
+	if err != nil {
+		return err
+	}
+	menuitemPosition, err := menu.GetMenuItemRect(menuitem)
+	if err != nil {
+		return err
+	}
+	interaction.ClickOnRect(*menuitemPosition)
+	win32waf.Finalize()
+	return nil
 }
 
-func menuItemRelativePosition(menuItemName string) (x, y int32) {
-	x = int32(CONTEXT_MENU_ITEM_WIDTH) / 2
-	y = int32(CONTEXT_MENU_MARGIN_TOP)
-	for _, menuitem := range contextMenu {
-		if menuitem.Name == menuItemName {
-			y = y + (menuitem.Height / 2)
-			break
-		}
-		y = y + menuitem.Height
-	}
-	fmt.Printf("Get button relative %s X:%d y:%d\n", menuItemName, x, y)
-	return
+func clickDoubleAction(action string) {
+
+}
+
+func checkDoubleAction(action string) bool {
+	_, ok := doubleClickActions[action]
+	return ok
 }
