@@ -3,7 +3,10 @@
 package main
 
 import (
-	"github.com/adrianriobo/gowinx/pkg/crc"
+	"fmt"
+
+	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/windows-accesibility-features"
+	"github.com/adrianriobo/gowinx/pkg/win32/desktop/menu"
 	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
 	"github.com/adrianriobo/gowinx/pkg/win32/ux/interaction"
 )
@@ -18,13 +21,19 @@ func main() {
 		interaction.Click(int32(x), int32(y))
 	}
 
-	// Click on menu
-	stopX, stopY := crc.MenuItemPosition(crc.CONTEXT_MENU_ITEM_STOP)
-	interaction.Click(stopX, stopY)
-
-	// Try with children
-	// if err := crc.FindAllChildren(); err != nil {
-	// 	fmt.Printf("error on uiautomation %v\n", err)
-	// }
-
+	win32waf.Initalize()
+	crcMenu, err := menu.GetMenuFromRoot("crc")
+	if err != nil {
+		fmt.Printf("Error with %v", err)
+	}
+	menuitem, err := menu.GetMenuItem(crcMenu, "crc-delete")
+	if err != nil {
+		fmt.Printf("Error with %v", err)
+	}
+	menuitemPosition, err := menu.GetMenuItemRect(menuitem)
+	if err != nil {
+		fmt.Printf("Error with %v", err)
+	}
+	interaction.ClickOnRect(*menuitemPosition)
+	win32waf.Finalize()
 }

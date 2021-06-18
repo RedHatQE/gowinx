@@ -13,14 +13,6 @@ func GetHiddenIconsCount() (int32, error) {
 	return getIconsCountByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS)
 }
 
-// FIXME how to identify ToolBar32 always instance 3?
-// func GetVisibleIconsCount() (int32, error) {
-// 	handler, _ := ux.FindWindowByClass(NOTIFICATION_AREA_VISIBLE_WINDOW_CLASS)
-// 	toolbarHandler, _ := findElementsbyClass(handler, "ToolbarWindow32")
-// 	buttonsCount, _ := win32.SendMessage(toolbarHandler, win32.TB_BUTTONCOUNT, 0, 0)
-// 	return int32(buttonsCount), nil
-// }
-
 func getIconsCountByWindowClass(className string) (int32, error) {
 	var err error
 	if toolbarHandler, err := getNotificationAreaToolbarByWindowClass(className); err == nil {
@@ -29,10 +21,6 @@ func getIconsCountByWindowClass(className string) (int32, error) {
 	}
 	return 0, err
 }
-
-// To implement
-// func GetIconPosition(title string) (x, y int32) {
-// }
 
 func GetIconPosition(rect win32wam.RECT) (x, y int32) {
 	x = rect.Left + 10
@@ -75,15 +63,3 @@ func getControlRect(controlHandler syscall.Handle) (rect win32wam.RECT, err erro
 	}
 	return
 }
-
-// func GetButtonsTexts() {
-// 	// var err error
-// 	if toolbarHandler, err := getNotificationAreaToolbarByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS); err == nil {
-// 		buttonsCount, _ := win32api.SendMessage(toolbarHandler, win32api.TB_BUTTONCOUNT, 0, 0)
-// 		for i := 0; i < int(buttonsCount); i++ {
-// 			text, _ := win32toolbar.GetButtonText(toolbarHandler, i)
-// 			index := win32toolbar.GetButtonIndex(toolbarHandler, i)
-// 			fmt.Printf("The name of the button at index %d, is %s\n", index, text)
-// 		}
-// 	}
-// }

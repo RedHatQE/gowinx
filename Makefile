@@ -14,4 +14,5 @@ clean:
 cross: $(BUILD_DIR)/windows-amd64/main.exe
 
 $(BUILD_DIR)/windows-amd64/main.exe: $(SOURCES)
-	OARCH=amd64 GOOS=windows go build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/windows-amd64/main.exe $(GO_EXTRA_BUILDFLAGS) .
+	#  OARCH=amd64 GOOS=windows go build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/windows-amd64/main.exe $(GO_EXTRA_BUILDFLAGS) .
+	GOOS=windows go build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/windows-amd64/main.exe $(GO_EXTRA_BUILDFLAGS) .

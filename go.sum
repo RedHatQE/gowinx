@@ -1,0 +1,6 @@
+github.com/go-ole/go-ole v1.2.5 h1:t4MGB5xEDZvXI+0rMjjsfBsD7yAgp/s9ZDkL1JndXwY=
+github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
+github.com/hnakamur/w32uiautomation v0.0.0-20181219153735-127a3cdc8655 h1:gkfXLC6mLixRpBz6Uv4gARpyHqtmNofBeY59yDj+eXI=
+github.com/hnakamur/w32uiautomation v0.0.0-20181219153735-127a3cdc8655/go.mod h1:lOVEkdptdYDAkSqj5ysRLEkhaci94wBP2L/UBdXNuxo=
+golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3 h1:7TYNF4UdlohbFwpNH04CoPMp1cHUZgO1Ebq5r2hIjfo=
+golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
