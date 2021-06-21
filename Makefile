@@ -11,8 +11,9 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 .PHONY: cross ## Cross compiles all binaries
-cross: $(BUILD_DIR)/windows-amd64/main.exe
+cross: $(BUILD_DIR)/gowinx.exe
 
-$(BUILD_DIR)/windows-amd64/main.exe: $(SOURCES)
+$(BUILD_DIR)/gowinx.exe: $(SOURCES)
 	#  OARCH=amd64 GOOS=windows go build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/windows-amd64/main.exe $(GO_EXTRA_BUILDFLAGS) .
-	GOOS=windows go build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/windows-amd64/main.exe $(GO_EXTRA_BUILDFLAGS) .
+	# GOOS=windows go build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/windows-amd64/main.exe $(GO_EXTRA_BUILDFLAGS) .
+	OARCH=amd64 GOOS=windows go build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/gowinx.exe $(GO_EXTRA_BUILDFLAGS) ./cmd

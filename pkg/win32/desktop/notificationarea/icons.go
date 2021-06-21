@@ -6,7 +6,6 @@ import (
 	"syscall"
 
 	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
-	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
 
 func GetHiddenIconsCount() (int32, error) {
@@ -26,32 +25,6 @@ func GetIconPosition(rect win32wam.RECT) (x, y int32) {
 	x = rect.Left + 10
 	y = rect.Top + 10
 	fmt.Printf("Crc icon will be clicked at x: %d y: %d\n", x, y)
-	return
-}
-
-func GetIconByTittle(title string) syscall.Handle {
-	toolbarHandlers, _ := findToolbars()
-	for i, toolbarHandler := range toolbarHandlers {
-		fmt.Printf("Looking for %s at toolbar index %d\n", title, i)
-		iconHandler, iconIndex, err := win32windows.FindChildWindowByTitle(toolbarHandler, title)
-		if err == nil {
-			fmt.Printf("We found the icon for %s at index %d\n", title, iconIndex)
-			return iconHandler
-		}
-	}
-	return 0
-}
-
-func GetIconRectByTittle(title string) (rect win32wam.RECT, err error) {
-	toolbarHandlers, _ := findToolbars()
-	for i, toolbarHandler := range toolbarHandlers {
-		fmt.Printf("Looking for %s at toolbar index %d\n", title, i)
-		iconHandler, iconIndex, err := win32windows.FindChildWindowByTitle(toolbarHandler, title)
-		if err == nil {
-			fmt.Printf("We found the icon for %s at index %d\n", title, iconIndex)
-			rect, err = getControlRect(iconHandler)
-		}
-	}
 	return
 }
 

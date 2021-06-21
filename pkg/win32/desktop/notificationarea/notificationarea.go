@@ -60,10 +60,20 @@ func getNotificationAreaToolbarByWindowClass(className string) (handler syscall.
 }
 
 func GetIconPositionByTitle(buttonText string) (int, int, error) {
-	toolbarHandlers, _ := findToolbars()
+	toolbarHandlers, _ := findVisibleToolbars()
 	for i, toolbarHandler := range toolbarHandlers {
 		fmt.Printf("trying on toolbar %d\n", i)
-		if x, y, err := win32toolbar.GetButtonClickablePosition(toolbarHandler, buttonText); err == nil {
+		if x, y, err := win32toolbar.GetButtonClickablePosition(toolbarHandler,
+			win32toolbar.TOOLBAR_TYPE_VISIBLE,
+			buttonText); err == nil {
+			return x, y, nil
+		}
+	}
+	toolbarHandler, err := getNotificationAreaToolbarByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS)
+	if err == nil {
+		if x, y, err := win32toolbar.GetButtonClickablePosition(toolbarHandler,
+			win32toolbar.TOOLBAR_TYPE_HIDDEN,
+			buttonText); err == nil {
 			return x, y, nil
 		}
 	}
@@ -73,12 +83,8 @@ func GetIconPositionByTitle(buttonText string) (int, int, error) {
 
 // The notification area is composed of elements, app notification icons use to be placed
 // at the toolbars
-func findToolbars() ([]syscall.Handle, error) {
+func findVisibleToolbars() ([]syscall.Handle, error) {
 	handler, _ := win32windows.FindWindowByClass(NOTIFICATION_AREA_VISIBLE_WINDOW_CLASS)
 	toolbars, _ := win32toolbar.FindToolbars(handler)
-	toolbarHandler, err := getNotificationAreaToolbarByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS)
-	if err == nil {
-		toolbars = append(toolbars, toolbarHandler)
-	}
 	return toolbars, nil
 }

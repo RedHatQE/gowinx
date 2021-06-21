@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/adrianriobo/gowinx/pkg/util/logging"
 	win32ss "github.com/adrianriobo/gowinx/pkg/win32/api/system-services"
 	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
 	win32process "github.com/adrianriobo/gowinx/pkg/win32/services/process"
@@ -17,9 +18,13 @@ import (
 
 const (
 	// Review this 256
-	BUTTONTEXT_MAX_SIZE   = 256
-	BUTTON_DEFAULT_HEIGHT = 40
-	BUTTON_DEFAULT_WIDHT  = 40
+	BUTTONTEXT_MAX_SIZE          = 256
+	BUTTON_DEFAULT_HEIGHT        = 40
+	BUTTON_DEFAULT_WIDHT_HIDDEN  = 40
+	BUTTON_DEFAULT_WIDHT_VISIBLE = 24
+
+	TOOLBAR_TYPE_HIDDEN  = 0
+	TOOLBAR_TYPE_VISIBLE = 1
 
 	TOOLBAR_WINDOW32_CLASS string = "ToolbarWindow32"
 )
@@ -29,43 +34,43 @@ func FindToolbars(parentHandler syscall.Handle) ([]syscall.Handle, error) {
 	return win32windows.FindChildWindowsbyClass(parentHandler, TOOLBAR_WINDOW32_CLASS)
 }
 
-// Get coordenates to click on a button identified by its text or error if button
-// does not exist on toolbar
-// func GetButtonClickPosition(toolbarHandler syscall.Handle, text string) (x, y int32, err error) {
-
-// }
-
 // Find the index of a button identified by its tests on a toolbar return error in case
 // the button is not on the toolbar
-func GetButtonClickablePosition(toolbarHandler syscall.Handle, text string) (int, int, error) {
+func GetButtonClickablePosition(toolbarHandler syscall.Handle, toolbarType int, text string) (int, int, error) {
 	buttonsCount := getButtonsCount(toolbarHandler)
 	for n := 0; n < buttonsCount; n++ {
 		buttonText, _ := getButtonText(toolbarHandler, n)
 		if buttonText == text {
 			fmt.Printf("We found the button %s\n", buttonText)
-			return calculateButtonPosition(toolbarHandler, n)
+			return calculateButtonPosition(toolbarHandler, toolbarType, n)
 		}
 	}
 	return -1, -1, fmt.Errorf("toolbar does not contain the button")
 }
 
-func calculateButtonPosition(toolbarHandler syscall.Handle, commandId int) (int, int, error) {
+func calculateButtonPosition(toolbarHandler syscall.Handle, toolbarType int, commandId int) (int, int, error) {
 	index := getButtonIndex(toolbarHandler, commandId)
+	logging.Debugf("Button is at index %d", index)
 	toolbarRect, err := getToolbarRect(toolbarHandler)
 	if err == nil {
-		elementsPerRow := int(toolbarRect.Right-toolbarRect.Left) / int(BUTTON_DEFAULT_WIDHT)
-		row := index / elementsPerRow
-		indexOnRow := int(math.Mod(float64(index), float64(elementsPerRow)))
-		x := (indexOnRow * BUTTON_DEFAULT_WIDHT) + int(toolbarRect.Left) + (BUTTON_DEFAULT_WIDHT / 2)
+		var buttonWith, row, indexOnRow int
+		if toolbarType == TOOLBAR_TYPE_HIDDEN {
+			buttonWith = BUTTON_DEFAULT_WIDHT_HIDDEN
+			elementsPerRow := int(toolbarRect.Right-toolbarRect.Left) / int(buttonWith)
+			row = index / elementsPerRow
+			indexOnRow = int(math.Mod(float64(index), float64(elementsPerRow)))
+		} else {
+			buttonWith = BUTTON_DEFAULT_WIDHT_VISIBLE
+			row = 0
+			indexOnRow = index
+		}
+		x := (indexOnRow * buttonWith) + int(toolbarRect.Left) + (buttonWith / 2)
 		y := (row * BUTTON_DEFAULT_HEIGHT) + int(toolbarRect.Top) + (BUTTON_DEFAULT_HEIGHT / 2)
-		fmt.Printf("Button is located at row %d on order %d its postion would be at x: %d y: %d\n", row, indexOnRow, x, y)
+		logging.Debugf("Button is located at row %d on order %d \n its postion would be at x: %d y: %d\n", row, indexOnRow, x, y)
 		return x, y, nil
 	}
 	return -1, -1, fmt.Errorf("can not get button position")
 
-}
-func getElementsPerRow(rect win32wam.RECT) int {
-	return int(rect.Left-rect.Right) / BUTTON_DEFAULT_WIDHT
 }
 
 func getRowForIndex(index, elementsPerRow int) int {
