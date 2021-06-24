@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/adrianriobo/gowinx/pkg/crc"
+	"github.com/adrianriobo/gowinx/pkg/app/crc"
 	"github.com/adrianriobo/gowinx/pkg/util/logging"
 )
 

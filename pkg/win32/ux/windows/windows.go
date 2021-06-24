@@ -3,6 +3,7 @@ package windows
 
 import (
 	"fmt"
+	"strings"
 	"syscall"
 
 	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
@@ -88,6 +89,36 @@ func FindChildWindowByTitle(hwndParent syscall.Handle, title string) (syscall.Ha
 		return 0, 0, fmt.Errorf("No window with title '%s' found", title)
 	}
 	return hwnd, elementIndex, nil
+}
+
+// Get all child windows whith class
+func FindChildWindowsbyClassAndTitle(hwndParent syscall.Handle, class, title string) (syscall.Handle, error) {
+	var hwnd syscall.Handle
+	cb := syscall.NewCallback(func(h syscall.Handle, p uintptr) uintptr {
+		elementClassName, err := win32wam.GetClassName(h)
+		if err != nil {
+			return 1 // continue enumeration
+		}
+		if elementClassName == class {
+			b := make([]uint16, 200)
+			_, err := win32wam.GetWindowText(h, &b[0], int32(len(b)))
+			if err != nil {
+				return 1 // continue enumeration
+			}
+			elementTitle := syscall.UTF16ToString(b)
+			fmt.Printf("looking for child elements got: %s\n", elementTitle)
+			if strings.Contains(strings.ToLower(elementTitle), strings.ToLower(title)) {
+				hwnd = h
+				return 0 // stop enumeration
+			}
+		}
+		return 1 // continue enumeration
+	})
+	win32wam.EnumChildWindows(hwndParent, cb, 0)
+	if hwnd == 0 {
+		return 0, fmt.Errorf("No child element with classname %s\n", class)
+	}
+	return hwnd, nil
 }
 
 // Get all child windows whith class

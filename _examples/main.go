@@ -2,7 +2,8 @@
 package main
 
 import (
-	"github.com/adrianriobo/gowinx/pkg/crc"
+	actionCenter "github.com/adrianriobo/gowinx/pkg/app/action-center"
+	"github.com/adrianriobo/gowinx/pkg/app/crc"
 )
 
 func main() {
@@ -10,4 +11,6 @@ func main() {
 	crc.Click([]string{crc.ACTION_STOP})
 	// Double click submenu item
 	crc.Click([]string{crc.ACTION_COPY_OC_COMMAND, crc.ACTION_COPY_OC_COMMAND_KUBEADMIN})
+	// Click action center
+	actionCenter.Click()
 }
