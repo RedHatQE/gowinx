@@ -21,6 +21,6 @@ var actionCenterClickCmd = &cobra.Command{
 	Long:  "click on action center button from notification area",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logging.Infof("action center click ")
-		return actionCenter.Click()
+		return actionCenter.ClickNotifyButton()
 	},
 }

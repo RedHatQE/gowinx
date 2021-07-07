@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"syscall"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
-	win32toolbar "github.com/adrianriobo/gowinx/pkg/win32/ux/commands/toolbar"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	win32toolbar "github.com/adrianriobo/gowinx/pkg/win32/ux/toolbar"
 	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
 

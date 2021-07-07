@@ -1,14 +1,15 @@
 // +build windows
+
 package crc
 
 import (
 	"fmt"
 
-	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/windows-accesibility-features"
-	"github.com/adrianriobo/gowinx/pkg/win32/desktop/menu"
+	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-accesibility-features"
 	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
-	"github.com/adrianriobo/gowinx/pkg/win32/ux/interaction"
-	wa "github.com/hnakamur/w32uiautomation"
+	"github.com/adrianriobo/gowinx/pkg/win32/interaction"
+	"github.com/adrianriobo/gowinx/pkg/win32/ux/menu"
+	wa "github.com/openstandia/w32uiautomation"
 )
 
 const (
@@ -82,7 +83,7 @@ func intialize() error {
 	}
 
 	// Get crc menu element
-	menu, err := menu.GetMenuFromRoot(menu_id)
+	menu, err := menu.GetActiveMenu(menu_id)
 	if err != nil {
 		return err
 	}
@@ -108,6 +109,5 @@ func clickSimpleAction(action string, actionMenu *wa.IUIAutomationElement) error
 	if err != nil {
 		return err
 	}
-	interaction.ClickOnRect(*menuitemPosition)
-	return nil
+	return interaction.ClickOnRect(*menuitemPosition)
 }

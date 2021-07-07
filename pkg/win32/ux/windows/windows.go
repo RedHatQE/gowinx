@@ -6,7 +6,9 @@ import (
 	"strings"
 	"syscall"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
+	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-accesibility-features"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	wa "github.com/openstandia/w32uiautomation"
 )
 
 // To get a windows by title among all the windows on the system, it is required
@@ -142,4 +144,9 @@ func FindChildren(hwndParent syscall.Handle) ([]syscall.Handle, error) {
 	})
 	win32wam.EnumChildWindows(hwndParent, cb, 0)
 	return hwnds, nil
+}
+
+// Access window through UI Automation
+func GetActiveWindow(name string) (*wa.IUIAutomationElement, error) {
+	return win32waf.GetActiveElement(name, wa.UIA_WindowControlTypeId)
 }

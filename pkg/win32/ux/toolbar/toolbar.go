@@ -9,7 +9,7 @@ import (
 
 	"github.com/adrianriobo/gowinx/pkg/util/logging"
 	win32ss "github.com/adrianriobo/gowinx/pkg/win32/api/system-services"
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 	win32process "github.com/adrianriobo/gowinx/pkg/win32/services/process"
 	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
