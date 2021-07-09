@@ -61,11 +61,27 @@ func GetElementFromParent(parentElement *wa.IUIAutomationElement, name string, e
 	if err != nil {
 		return nil, err
 	}
-	menuitem, err := findFirst(parentElement, wa.TreeScope_Children, condition)
+	return findFirst(parentElement, wa.TreeScope_Children, condition)
+}
+
+func GetElementFromParentByType(parentElement *wa.IUIAutomationElement, elementType int64) (*wa.IUIAutomationElement, error) {
+	condition, err := createPropertyCondition(
+		wa.UIA_ControlTypePropertyId,
+		ole.NewVariant(ole.VT_INT, elementType))
 	if err != nil {
 		return nil, err
 	}
-	return menuitem, nil
+	return findFirst(parentElement, wa.TreeScope_Children, condition)
+}
+
+func GetAllChildren(parentElement *wa.IUIAutomationElement, elementType int64) (*wa.IUIAutomationElementArray, error) {
+	condition, err := createPropertyCondition(
+		wa.UIA_ControlTypePropertyId,
+		ole.NewVariant(ole.VT_INT, elementType))
+	if err != nil {
+		return nil, err
+	}
+	return findAll(parentElement, wa.TreeScope_Children, condition)
 }
 
 func GetElementRect(element *wa.IUIAutomationElement) (*win32wam.RECT, error) {
@@ -123,6 +139,16 @@ func createAndCondition(condition1, condition2 *wa.IUIAutomationCondition) (newC
 // );
 func findFirst(elem *wa.IUIAutomationElement, scope wa.TreeScope, condition *wa.IUIAutomationCondition) (found *wa.IUIAutomationElement, err error) {
 	return wa.WaitFindFirst(manager, elem, scope, condition)
+}
+
+// https://docs.microsoft.com/en-us/windows/win32/api/uiautomationclient/nf-uiautomationclient-iuiautomationelement-findfirst
+// HRESULT FindFirst(
+// 	TreeScope              scope,
+// 	IUIAutomationCondition *condition,
+// 	IUIAutomationElement   **found
+// );
+func findAll(elem *wa.IUIAutomationElement, scope wa.TreeScope, condition *wa.IUIAutomationCondition) (found *wa.IUIAutomationElementArray, err error) {
+	return wa.WaitFindAll(manager, elem, scope, condition)
 }
 
 func getRootElement() (root *wa.IUIAutomationElement, err error) {
