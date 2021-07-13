@@ -1,18 +1,18 @@
 // +build windows
+
 package crc
 
 import (
 	"fmt"
 
-	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/windows-accesibility-features"
-	"github.com/adrianriobo/gowinx/pkg/win32/desktop/menu"
+	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-accesibility-features"
 	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
-	"github.com/adrianriobo/gowinx/pkg/win32/ux/interaction"
-	wa "github.com/hnakamur/w32uiautomation"
+	"github.com/adrianriobo/gowinx/pkg/win32/interaction"
+	"github.com/adrianriobo/gowinx/pkg/win32/ux"
 )
 
 const (
-	notification_icon_id string = "Codeready Containers"
+	notification_icon_id string = "CodeReady Containers"
 
 	menu_id string = "crc"
 
@@ -35,7 +35,7 @@ const (
 
 var clickActions map[string]string
 
-var crcMenu *wa.IUIAutomationElement
+var crcMenu *ux.UXElement
 
 func init() {
 	clickActions = map[string]string{
@@ -60,7 +60,7 @@ func Click(actions []string) error {
 		if !ok {
 			return fmt.Errorf("No action defined %s", actions[0])
 		}
-		subMenu, err := menu.GetMenuItem(crcMenu, subMenuitem_id)
+		subMenu, err := crcMenu.GetElement(subMenuitem_id, ux.MENUITEM)
 		if err != nil {
 			return err
 		}
@@ -71,23 +71,17 @@ func Click(actions []string) error {
 	return nil
 }
 
-func intialize() error {
+func intialize() (err error) {
 	// Initialize context
 	win32waf.Initalize()
-
 	// Show notification icon
 	notificationarea.ShowHiddenNotificationArea()
 	if x, y, err := notificationarea.GetIconPositionByTitle(notification_icon_id); err == nil {
 		interaction.Click(int32(x), int32(y))
 	}
-
 	// Get crc menu element
-	menu, err := menu.GetMenuFromRoot(menu_id)
-	if err != nil {
-		return err
-	}
-	crcMenu = menu
-	return nil
+	crcMenu, err = ux.GetActiveElement(menu_id, ux.MENU)
+	return
 }
 
 func finalize() {
@@ -95,19 +89,14 @@ func finalize() {
 	win32waf.Finalize()
 }
 
-func clickSimpleAction(action string, actionMenu *wa.IUIAutomationElement) error {
+func clickSimpleAction(action string, actionMenu *ux.UXElement) error {
 	menuitem_id, ok := clickActions[action]
 	if !ok {
 		return fmt.Errorf("No action defined %s", action)
 	}
-	menuitem, err := menu.GetMenuItem(actionMenu, menuitem_id)
+	menuitem, err := actionMenu.GetElement(menuitem_id, ux.MENUITEM)
 	if err != nil {
 		return err
 	}
-	menuitemPosition, err := menu.GetMenuItemRect(menuitem)
-	if err != nil {
-		return err
-	}
-	interaction.ClickOnRect(*menuitemPosition)
-	return nil
+	return menuitem.Click()
 }

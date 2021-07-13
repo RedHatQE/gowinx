@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"syscall"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 )
 
 func GetHiddenIconsCount() (int32, error) {

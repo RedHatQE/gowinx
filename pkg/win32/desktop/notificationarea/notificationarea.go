@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"syscall"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/windows-and-messages"
-	win32toolbar "github.com/adrianriobo/gowinx/pkg/win32/ux/commands/toolbar"
+	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	win32toolbar "github.com/adrianriobo/gowinx/pkg/win32/ux/toolbar"
 	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
 )
 
@@ -19,6 +19,8 @@ const (
 	NOTIFICATION_AREA_VISIBLE_WINDOW_CLASS string = "Shell_TrayWnd"
 	NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS  string = "NotifyIconOverflowWindow"
 	TOOLBARWINDOWS32_ID                    int32  = 1504
+	TRAY_BUTTON_CLASS                      string = "TrayButton"
+	ACTION_CENTER_NAME                     string = "Action Center"
 )
 
 func GetHiddenNotificationAreaRect() (rect win32wam.RECT, err error) {
@@ -87,4 +89,9 @@ func findVisibleToolbars() ([]syscall.Handle, error) {
 	handler, _ := win32windows.FindWindowByClass(NOTIFICATION_AREA_VISIBLE_WINDOW_CLASS)
 	toolbars, _ := win32toolbar.FindToolbars(handler)
 	return toolbars, nil
+}
+
+func FindTrayButtonByTitle(title string) (syscall.Handle, error) {
+	handler, _ := win32windows.FindWindowByClass(NOTIFICATION_AREA_VISIBLE_WINDOW_CLASS)
+	return win32windows.FindChildWindowsbyClassAndTitle(handler, TRAY_BUTTON_CLASS, title)
 }
