@@ -1,4 +1,5 @@
 // +build windows
+
 package windows_accesibility_features
 
 import (
@@ -8,6 +9,7 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/adrianriobo/gowinx/pkg/util/logging"
 	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 	"github.com/go-ole/go-ole"
 	wa "github.com/openstandia/w32uiautomation"
@@ -61,7 +63,9 @@ func GetElementFromParent(parentElement *wa.IUIAutomationElement, name string, e
 	if err != nil {
 		return nil, err
 	}
-	return findFirst(parentElement, wa.TreeScope_Children, condition)
+	// With wait
+	// return findFirst(parentElement, wa.TreeScope_Children, condition)
+	return parentElement.FindFirst(wa.TreeScope_Children, condition)
 }
 
 func GetElementFromParentByType(parentElement *wa.IUIAutomationElement, elementType int64) (*wa.IUIAutomationElement, error) {
@@ -71,7 +75,9 @@ func GetElementFromParentByType(parentElement *wa.IUIAutomationElement, elementT
 	if err != nil {
 		return nil, err
 	}
-	return findFirst(parentElement, wa.TreeScope_Children, condition)
+	// With wait
+	// return findFirst(parentElement, wa.TreeScope_Children, condition)
+	return parentElement.FindFirst(wa.TreeScope_Children, condition)
 }
 
 func GetAllChildren(parentElement *wa.IUIAutomationElement, elementType int64) (*wa.IUIAutomationElementArray, error) {
@@ -81,7 +87,9 @@ func GetAllChildren(parentElement *wa.IUIAutomationElement, elementType int64) (
 	if err != nil {
 		return nil, err
 	}
-	return findAll(parentElement, wa.TreeScope_Children, condition)
+	// With wait
+	// return findAll(parentElement, wa.TreeScope_Children, condition)
+	return parentElement.FindAll(wa.TreeScope_Children, condition)
 }
 
 func GetElementRect(element *wa.IUIAutomationElement) (*win32wam.RECT, error) {
@@ -95,6 +103,8 @@ func GetElementRect(element *wa.IUIAutomationElement) (*win32wam.RECT, error) {
 		Left:   int32(rect.Left)}, nil
 }
 
+// // https://github.com/goldendict/goldendict/blob/master/guids.c
+// var IID_IUIAutomationTextPattern = &ole.GUID{0x32eba289, 0x3583, 0x42c9, [8]byte{0x9c, 0x59, 0x3b, 0x6d, 0x9a, 0x1e, 0x9b, 0x6a}}
 func GetElementText(element *wa.IUIAutomationElement) (string, error) {
 	pattern, err := getValuePattern(element)
 	if err != nil {
@@ -121,6 +131,7 @@ func createPropertyCondition(propertyId wa.PROPERTYID, value ole.VARIANT) (*wa.I
 		uintptr(unsafe.Pointer(&newCondition)),
 		0,
 		0)
+	// https://docs.microsoft.com/en-us/windows/win32/seccrypto/common-hresult-values
 	if hr != 0 {
 		return nil, error(er1)
 	}
@@ -158,14 +169,17 @@ func getRootElement() (root *wa.IUIAutomationElement, err error) {
 func getValuePattern(element *wa.IUIAutomationElement) (*wa.IUIAutomationValuePattern, error) {
 	unknown, err := element.GetCurrentPattern(wa.UIA_ValuePatternId)
 	if err != nil {
+		logging.Error(err)
 		return nil, err
 	}
+	logging.Info("found value pattern for element %v", unknown)
 	defer unknown.Release()
 
 	disp, err := unknown.QueryInterface(wa.IID_IUIAutomationValuePattern)
 	if err != nil {
+		logging.Error(err)
 		return nil, err
 	}
-
+	logging.Info("found interface dispatcher for value pattern")
 	return (*wa.IUIAutomationValuePattern)(unsafe.Pointer(disp)), nil
 }
