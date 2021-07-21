@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/adrianriobo/gowinx/pkg/util/logging"
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
+	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 	"github.com/go-ole/go-ole"
 	wa "github.com/openstandia/w32uiautomation"
 )

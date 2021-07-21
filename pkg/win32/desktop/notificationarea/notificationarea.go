@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"syscall"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
-	win32toolbar "github.com/adrianriobo/gowinx/pkg/win32/ux/toolbar"
-	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
+	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	win32toolbar "github.com/RedHatQE/gowinx/pkg/win32/ux/toolbar"
+	win32windows "github.com/RedHatQE/gowinx/pkg/win32/ux/windows"
 )
 
 // systemtray aka notification area, it is composed of notifications icons (offering display the status and various functions)

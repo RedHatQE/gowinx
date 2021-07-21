@@ -7,11 +7,11 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/adrianriobo/gowinx/pkg/util/logging"
-	win32ss "github.com/adrianriobo/gowinx/pkg/win32/api/system-services"
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
-	win32process "github.com/adrianriobo/gowinx/pkg/win32/services/process"
-	win32windows "github.com/adrianriobo/gowinx/pkg/win32/ux/windows"
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
+	win32ss "github.com/RedHatQE/gowinx/pkg/win32/api/system-services"
+	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	win32process "github.com/RedHatQE/gowinx/pkg/win32/services/process"
+	win32windows "github.com/RedHatQE/gowinx/pkg/win32/ux/windows"
 )
 
 // Toolbars are a way to group commands for efficient access.

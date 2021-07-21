@@ -1,6 +1,6 @@
 package main
 
-import "github.com/adrianriobo/gowinx/cmd/cmd"
+import "github.com/RedHatQE/gowinx/cmd/cmd"
 
 func main() {
 	cmd.Execute()

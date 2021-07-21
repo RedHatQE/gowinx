@@ -7,7 +7,7 @@ import (
 	"strings"
 	"syscall"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 )
 
 // To get a windows by title among all the windows on the system, it is required

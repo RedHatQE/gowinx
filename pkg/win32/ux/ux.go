@@ -5,9 +5,9 @@ package ux
 import (
 	"fmt"
 
-	"github.com/adrianriobo/gowinx/pkg/util/logging"
-	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-accesibility-features"
-	"github.com/adrianriobo/gowinx/pkg/win32/interaction"
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
+	win32waf "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-accesibility-features"
+	"github.com/RedHatQE/gowinx/pkg/win32/interaction"
 	wa "github.com/openstandia/w32uiautomation"
 )
 

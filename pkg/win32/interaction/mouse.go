@@ -6,7 +6,7 @@ import (
 	"time"
 	"unsafe"
 
-	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
+	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 )
 
 const (
