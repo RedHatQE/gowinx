@@ -4,6 +4,7 @@ package crc
 
 import (
 	"fmt"
+	"time"
 
 	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-accesibility-features"
 	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
@@ -14,8 +15,9 @@ import (
 const (
 	notification_icon_id string = "CodeReady Containers"
 
-	menu_id string = "crc"
+	menu_id string = "menu"
 
+	status_id          string = "status"
 	ACTION_START       string = "start"
 	menuitem_start_id  string = "crc-start"
 	ACTION_STOP        string = "stop"
@@ -46,6 +48,26 @@ func init() {
 		ACTION_COPY_OC_COMMAND:           menuitem_copy_oc_command_id,
 		ACTION_COPY_OC_COMMAND_DEVELOPER: menuitem_copy_oc_command_developer_id,
 		ACTION_COPY_OC_COMMAND_KUBEADMIN: menuitem_copy_oc_command_kubeadmin_id}
+}
+
+func GetStatus() error {
+	// Initialize base elements
+	if err := intialize(); err != nil {
+		return err
+	}
+	time.Sleep(2 * time.Second)
+	statusLabel, err := crcMenu.GetElementByType(ux.TEXT)
+	if err != nil {
+		return err
+	}
+	// statusLabelText, err := statusLabel.GetTextElement()
+	// if err != nil {
+	// 	return err
+	// }
+	fmt.Printf("Found label value %s", statusLabel.GetName())
+	// Finalize context
+	finalize()
+	return nil
 }
 
 func Click(actions []string) error {
