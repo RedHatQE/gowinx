@@ -50,6 +50,16 @@ type UXElement struct {
 	ref         interface{}
 }
 
+func Initialize() {
+	// Initialize context
+	win32waf.Initalize()
+}
+
+func Finalize() {
+	// Finalize context
+	win32waf.Finalize()
+}
+
 func GetActiveElement(name string, elementType string) (*UXElement, error) {
 	logging.Debugf("Get %s: %s", elementType, name)
 	if elementTypeId, ok := elementTypes[elementType]; !ok {

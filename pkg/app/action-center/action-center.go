@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/adrianriobo/gowinx/pkg/util/logging"
-	win32waf "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-accesibility-features"
 	win32wam "github.com/adrianriobo/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 	"github.com/adrianriobo/gowinx/pkg/win32/desktop/notificationarea"
 	"github.com/adrianriobo/gowinx/pkg/win32/interaction"
@@ -35,7 +34,7 @@ func ClickNotifyButton() error {
 
 func ClearNotifications() error {
 	// Initialize base elements
-	intialize()
+	initialize()
 	// Get action center window
 	actionCenterWindow, err := ux.GetActiveElement(window_title, ux.WINDOW)
 	if err != nil {
@@ -71,7 +70,7 @@ func PrintNotifications(notificationGroupName string) error {
 func GetNotifications(notificationGroupName string) ([]string, error) {
 	notificationsGroup := "Notifications from " + notificationGroupName
 	// Initialize base elements
-	intialize()
+	initialize()
 	var notifications []string
 	// Get action center window
 	actionCenterWindow, err := ux.GetActiveElement(window_title, ux.WINDOW)
@@ -119,9 +118,9 @@ func getActionCenterIconPosition(handler syscall.Handle) (win32wam.RECT, error) 
 	}
 }
 
-func intialize() (err error) {
+func initialize() (err error) {
 	// Initialize context
-	win32waf.Initalize()
+	ux.Initialize()
 	// Click notifiy button to expand action center
 	if err = ClickNotifyButton(); err == nil {
 		//delay
@@ -132,5 +131,5 @@ func intialize() (err error) {
 
 func finalize() {
 	// Finalize context
-	win32waf.Finalize()
+	ux.Finalize()
 }
