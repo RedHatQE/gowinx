@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	actionCenter "github.com/adrianriobo/gowinx/pkg/app/action-center"
-	"github.com/adrianriobo/gowinx/pkg/util/logging"
+	actionCenter "github.com/RedHatQE/gowinx/pkg/app/action-center"
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
 )
 
 const (

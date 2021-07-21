@@ -4,7 +4,7 @@ package system_services
 import (
 	"syscall"
 
-	"github.com/adrianriobo/gowinx/pkg/win32/api/util"
+	"github.com/RedHatQE/gowinx/pkg/win32/api/util"
 )
 
 var (

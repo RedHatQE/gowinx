@@ -2,7 +2,7 @@
 package main
 
 import (
-	actionCenter "github.com/adrianriobo/gowinx/pkg/app/action-center"
+	actionCenter "github.com/RedHatQE/gowinx/pkg/app/action-center"
 )
 
 func main() {

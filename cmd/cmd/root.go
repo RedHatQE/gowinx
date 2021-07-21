@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/adrianriobo/gowinx/pkg/util"
-	"github.com/adrianriobo/gowinx/pkg/util/logging"
+	"github.com/RedHatQE/gowinx/pkg/util"
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
 	"github.com/spf13/cobra"
 	"k8s.io/utils/exec"
 )

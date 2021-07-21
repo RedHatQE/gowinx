@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/adrianriobo/gowinx/pkg/util"
+	"github.com/RedHatQE/gowinx/pkg/util"
 	"github.com/sirupsen/logrus"
 )
 
