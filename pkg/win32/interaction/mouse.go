@@ -2,10 +2,10 @@
 package interaction
 
 import (
-	"fmt"
 	"time"
 	"unsafe"
 
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
 	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 )
 
@@ -50,7 +50,6 @@ func Click(x, y int32) error {
 func mouseInput(x, y int32, dwFlags uint32) error {
 	dx := getDX(x)
 	dy := getDY(y)
-	// fmt.Printf("Click done at x:%d y:%d \n", dx, dy)
 	mouseInput := MOUSE_INPUT{
 		Type: win32wam.INPUT_MOUSE,
 		Mi: MOUSEINPUT{
@@ -64,7 +63,6 @@ func mouseInput(x, y int32, dwFlags uint32) error {
 	actions := [1]MOUSE_INPUT{mouseInput}
 
 	if success, err := win32wam.SendInput(uint32(2), unsafe.Pointer(&actions), int32(unsafe.Sizeof(mouseInput))); success > 0 {
-		// fmt.Printf("Input sent successfull returns %d actions\n", success)
 		return nil
 	} else {
 		return err
@@ -83,7 +81,7 @@ func getDAxisValue(axisValue, systemMetricConstant int32) int32 {
 	if metric, err := win32wam.GetSystemMetrics(systemMetricConstant); err == nil {
 		return (axisValue * 65536) / metric
 	} else {
-		fmt.Print(err)
+		logging.Errorf("Error getting D Axis value: %v", err)
 		return 0
 	}
 }

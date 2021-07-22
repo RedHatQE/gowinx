@@ -48,7 +48,7 @@ func runPrerun(cmd *cobra.Command) error {
 }
 
 func runRoot() {
-	fmt.Println("No command given")
+	logging.Error("No command given")
 }
 
 func Execute() {

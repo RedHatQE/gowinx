@@ -111,7 +111,7 @@ func GetNotifications(notificationGroupName string) ([]string, error) {
 func getActionCenterIconPosition(handler syscall.Handle) (win32wam.RECT, error) {
 	var rect win32wam.RECT
 	if succeed, err := win32wam.GetWindowRect(handler, &rect); succeed {
-		fmt.Printf("Rect for action center icon is t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
+		logging.Debugf("Rect for action center icon is t:%d,l:%d,r:%d,b:%d", rect.Top, rect.Left, rect.Right, rect.Bottom)
 		return rect, nil
 	} else {
 		return win32wam.RECT{}, err

@@ -41,7 +41,7 @@ func GetButtonClickablePosition(toolbarHandler syscall.Handle, toolbarType int, 
 	for n := 0; n < buttonsCount; n++ {
 		buttonText, _ := getButtonText(toolbarHandler, n)
 		if buttonText == text {
-			fmt.Printf("We found the button %s\n", buttonText)
+			logging.Debugf("We found the button %s", buttonText)
 			return calculateButtonPosition(toolbarHandler, toolbarType, n)
 		}
 	}
@@ -85,7 +85,7 @@ func getRelativeIndex(index, elementsPerRow int) int {
 func getToolbarRect(toolbarHandler syscall.Handle) (win32wam.RECT, error) {
 	var rect win32wam.RECT
 	if succeed, err := win32wam.GetWindowRect(toolbarHandler, &rect); succeed {
-		fmt.Printf("Rect for toolbar is t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
+		logging.Debugf("Rect for toolbar is t:%d,l:%d,r:%d,b:%d", rect.Top, rect.Left, rect.Right, rect.Bottom)
 		return rect, nil
 	} else {
 		return win32wam.RECT{}, err
@@ -150,7 +150,7 @@ func readButtonText(processHandler syscall.Handle, memoryBaseAddress uintptr, le
 		&numRead)
 	if dataRead {
 		text = syscall.UTF16ToString(n)
-		fmt.Printf("Button with is %s\n", text)
+		logging.Debugf("Button text is %s", text)
 	}
 	return
 }

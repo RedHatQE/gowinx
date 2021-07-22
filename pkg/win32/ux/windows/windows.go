@@ -7,6 +7,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
 	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 )
 
@@ -76,7 +77,7 @@ func FindChildWindowByTitle(hwndParent syscall.Handle, title string) (syscall.Ha
 			elementIndex++
 		}
 		elementTitle := syscall.UTF16ToString(b)
-		fmt.Printf("looking for child elements got: %s\n", elementTitle)
+		logging.Debugf("looking for child elements got: %s", elementTitle)
 		if elementTitle == title {
 			hwnd = h
 			return 0 // stop enumeration
@@ -86,7 +87,7 @@ func FindChildWindowByTitle(hwndParent syscall.Handle, title string) (syscall.Ha
 	})
 	win32wam.EnumChildWindows(hwndParent, cb, 0)
 	if hwnd == 0 {
-		fmt.Printf("Error the expected element with title %s\n", title)
+		logging.Errorf("Error the expected element with title %s", title)
 		return 0, 0, fmt.Errorf("No window with title '%s' found", title)
 	}
 	return hwnd, elementIndex, nil
@@ -107,7 +108,7 @@ func FindChildWindowsbyClassAndTitle(hwndParent syscall.Handle, class, title str
 				return 1 // continue enumeration
 			}
 			elementTitle := syscall.UTF16ToString(b)
-			fmt.Printf("looking for child elements got: %s\n", elementTitle)
+			logging.Debugf("looking for child elements got: %s", elementTitle)
 			if strings.Contains(strings.ToLower(elementTitle), strings.ToLower(title)) {
 				hwnd = h
 				return 0 // stop enumeration
@@ -130,14 +131,14 @@ func FindChildren(hwndParent syscall.Handle) ([]syscall.Handle, error) {
 		if err != nil {
 			return 1 // continue enumeration
 		}
-		fmt.Printf("looking for child elements got: %s\n", elementClassName)
+		logging.Debugf("looking for child elements got: %s", elementClassName)
 		b := make([]uint16, 200)
 		_, err = win32wam.GetWindowText(h, &b[0], int32(len(b)))
 		if err != nil {
 			return 1 // continue enumeration
 		}
 		elementTitle := syscall.UTF16ToString(b)
-		fmt.Printf("looking for child elements got: %s\n", elementTitle)
+		logging.Debugf("looking for child elements got: %s", elementTitle)
 		hwnds = append(hwnds, h)
 		return 1 // continue enumeration
 	})

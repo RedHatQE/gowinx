@@ -3,7 +3,6 @@
 package windows_accesibility_features
 
 import (
-	"fmt"
 	"os"
 	"sync"
 	"syscall"
@@ -24,7 +23,7 @@ func Initalize() {
 	once.Do(func() {
 		ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED|ole.COINIT_SPEED_OVER_MEMORY)
 		if waManager, err := wa.NewUIAutomation(); err != nil {
-			fmt.Printf("Error initializing ui automation framework: %v", err)
+			logging.Errorf("Error initializing ui automation framework: %v", err)
 			os.Exit(1)
 		} else {
 			manager = waManager
