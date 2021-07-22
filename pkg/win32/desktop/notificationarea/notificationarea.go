@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"syscall"
 
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
 	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 	win32toolbar "github.com/RedHatQE/gowinx/pkg/win32/ux/toolbar"
 	win32windows "github.com/RedHatQE/gowinx/pkg/win32/ux/windows"
@@ -28,12 +29,12 @@ func GetHiddenNotificationAreaRect() (rect win32wam.RECT, err error) {
 	if err = ShowHiddenNotificationArea(); err == nil {
 		if toolbarHandler, err := getNotificationAreaToolbarByWindowClass(NOTIFICATION_AREA_HIDDEN_WINDOW_CLASS); err == nil {
 			if _, err = win32wam.GetWindowRect(toolbarHandler, &rect); err == nil {
-				fmt.Printf("Rect for system tray t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
+				logging.Debugf("Rect for system tray t:%d,l:%d,r:%d,b:%d", rect.Top, rect.Left, rect.Right, rect.Bottom)
 			}
 		}
 	}
 	if err != nil {
-		fmt.Printf("error getting hidden notification area rect: %v\n", err)
+		logging.Errorf("error getting hidden notification area rect: %v\n", err)
 	}
 	return
 }
@@ -47,7 +48,7 @@ func ShowHiddenNotificationArea() (err error) {
 
 func getNotificationAreaWindowByClass(className string) (handler syscall.Handle, err error) {
 	if handler, err = win32windows.FindWindowByClass(className); err != nil {
-		fmt.Printf("error getting handler on notification area for windows class: %s, error: %v\n", className, err)
+		logging.Errorf("error getting handler on notification area for windows class: %s, error: %v\n", className, err)
 	}
 	return
 }
@@ -55,7 +56,7 @@ func getNotificationAreaWindowByClass(className string) (handler syscall.Handle,
 func getNotificationAreaToolbarByWindowClass(className string) (handler syscall.Handle, err error) {
 	if windowHandler, err := getNotificationAreaWindowByClass(className); err == nil {
 		if handler, err = win32wam.GetDlgItem(windowHandler, TOOLBARWINDOWS32_ID); err != nil {
-			fmt.Printf("error getting toolbar handler on notification area for windows class: %s, error: %v\n", className, err)
+			logging.Errorf("error getting toolbar handler on notification area for windows class: %s, error: %v\n", className, err)
 		}
 	}
 	return
@@ -64,7 +65,7 @@ func getNotificationAreaToolbarByWindowClass(className string) (handler syscall.
 func GetIconPositionByTitle(buttonText string) (int, int, error) {
 	toolbarHandlers, _ := findVisibleToolbars()
 	for i, toolbarHandler := range toolbarHandlers {
-		fmt.Printf("trying on toolbar %d\n", i)
+		logging.Debugf("Trying on toolbar %d", i)
 		if x, y, err := win32toolbar.GetButtonClickablePosition(toolbarHandler,
 			win32toolbar.TOOLBAR_TYPE_VISIBLE,
 			buttonText); err == nil {

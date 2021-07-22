@@ -29,7 +29,7 @@ const (
 	groupId    = wa.UIA_GroupControlTypeId
 	textId     = wa.UIA_TextControlTypeId
 	menuId     = wa.UIA_MenuControlTypeId
-	menuitemId = wa.UIA_MenuControlTypeId
+	menuitemId = wa.UIA_MenuItemControlTypeId
 	checkboxId = wa.UIA_CheckBoxControlTypeId
 )
 
@@ -65,7 +65,7 @@ func GetActiveElement(name string, elementType string) (*UXElement, error) {
 	if elementTypeId, ok := elementTypes[elementType]; !ok {
 		return nil, fmt.Errorf("Error elementType %s is not supported", elementType)
 	} else {
-		if element, err := win32waf.GetActiveElement(name, elementTypeId); err != nil {
+		if element, err := win32waf.GetActiveElement(name, elementTypeId); err != nil || element == nil {
 			return nil, fmt.Errorf("Error getting element %s, with error %v", name, err)
 		} else {
 			return &UXElement{

@@ -2,9 +2,9 @@
 package notificationarea
 
 import (
-	"fmt"
 	"syscall"
 
+	"github.com/RedHatQE/gowinx/pkg/util/logging"
 	win32wam "github.com/RedHatQE/gowinx/pkg/win32/api/user-interface/windows-and-messages"
 )
 
@@ -24,15 +24,15 @@ func getIconsCountByWindowClass(className string) (int32, error) {
 func GetIconPosition(rect win32wam.RECT) (x, y int32) {
 	x = rect.Left + 10
 	y = rect.Top + 10
-	fmt.Printf("Crc icon will be clicked at x: %d y: %d\n", x, y)
+	logging.Debugf("icon will be clicked at x: %d y: %d", x, y)
 	return
 }
 
 func getControlRect(controlHandler syscall.Handle) (rect win32wam.RECT, err error) {
 	if _, err = win32wam.GetWindowRect(controlHandler, &rect); err == nil {
-		fmt.Printf("Rect for control t:%d,l:%d,r:%d,b:%d\n", rect.Top, rect.Left, rect.Right, rect.Bottom)
+		logging.Debugf("Rect for control t:%d,l:%d,r:%d,b:%d", rect.Top, rect.Left, rect.Right, rect.Bottom)
 	} else {
-		fmt.Printf("error getting control area rect: %v\n", err)
+		logging.Debugf("error getting control area rect: %v", err)
 	}
 	return
 }
