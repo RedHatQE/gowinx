@@ -21,6 +21,8 @@ const (
 	MENU     = "menu"
 	MENUITEM = "menuitem"
 	CHECKBOX = "checkbox"
+	EDIT     = "edit"
+	PANE     = "pane"
 
 	windowId   = wa.UIA_WindowControlTypeId
 	buttonId   = wa.UIA_ButtonControlTypeId
@@ -31,6 +33,8 @@ const (
 	menuId     = wa.UIA_MenuControlTypeId
 	menuitemId = wa.UIA_MenuItemControlTypeId
 	checkboxId = wa.UIA_CheckBoxControlTypeId
+	editId     = wa.UIA_EditControlTypeId
+	paneId     = wa.UIA_PaneControlTypeId
 )
 
 var elementTypes map[string]int64 = map[string]int64{
@@ -42,7 +46,9 @@ var elementTypes map[string]int64 = map[string]int64{
 	TEXT:     textId,
 	MENU:     menuId,
 	MENUITEM: menuitemId,
-	CHECKBOX: checkboxId}
+	CHECKBOX: checkboxId,
+	EDIT:     editId,
+	PANE:     paneId}
 
 type UXElement struct {
 	name        string
@@ -95,6 +101,15 @@ func (u UXElement) Click() error {
 		}
 		return interaction.ClickOnRect(*position)
 	}
+}
+
+func (u UXElement) SetValue(value string) error {
+	logging.Debug("setting value %s on %s", value, u.GetFullName())
+	if u.elementType != EDIT {
+		return fmt.Errorf("Error elementType %s is not supported", u.elementType)
+	}
+	return win32waf.SetElementValue(u.ref.(*wa.IUIAutomationElement), value)
+
 }
 
 func (u UXElement) GetElement(name string, elementType string) (*UXElement, error) {
