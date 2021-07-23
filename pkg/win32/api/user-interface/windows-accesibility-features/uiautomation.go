@@ -109,6 +109,15 @@ func GetElementText(element *wa.IUIAutomationElement) (string, error) {
 	return pattern.Get_CurrentValue()
 }
 
+func SetElementValue(element *wa.IUIAutomationElement, value string) error {
+	pattern, err := getLegacyIAccessiblePattern(element)
+	if err != nil {
+		return err
+	}
+	defer pattern.Release()
+	return pattern.SetValue(value)
+}
+
 // https://docs.microsoft.com/en-us/windows/win32/api/uiautomationclient/nf-uiautomationclient-iuiautomation-createpropertycondition
 // HRESULT CreatePropertyCondition(
 // 	PROPERTYID             propertyId,
@@ -177,4 +186,22 @@ func getValuePattern(element *wa.IUIAutomationElement) (*wa.IUIAutomationValuePa
 	}
 	logging.Info("found interface dispatcher for value pattern")
 	return (*wa.IUIAutomationValuePattern)(unsafe.Pointer(disp)), nil
+}
+
+func getLegacyIAccessiblePattern(element *wa.IUIAutomationElement) (*IUIAutomationLegacyIAccessiblePattern, error) {
+	unknown, err := element.GetCurrentPattern(wa.UIA_LegacyIAccessiblePatternId)
+	if err != nil {
+		logging.Error(err)
+		return nil, err
+	}
+	logging.Info("found LegacyIAccessible pattern for element %v", unknown)
+	defer unknown.Release()
+
+	disp, err := unknown.QueryInterface(IID_IUIAutomationLegacyIAccessiblePattern)
+	if err != nil {
+		logging.Error(err)
+		return nil, err
+	}
+	logging.Info("found interface dispatcher for value pattern")
+	return (*IUIAutomationLegacyIAccessiblePattern)(unsafe.Pointer(disp)), nil
 }
