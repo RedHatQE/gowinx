@@ -202,6 +202,6 @@ func getLegacyIAccessiblePattern(element *wa.IUIAutomationElement) (*IUIAutomati
 		logging.Error(err)
 		return nil, err
 	}
-	logging.Info("found interface dispatcher for value pattern")
+	logging.Info("found interface dispatcher for LegacyIAccessible pattern")
 	return (*IUIAutomationLegacyIAccessiblePattern)(unsafe.Pointer(disp)), nil
 }

@@ -23,6 +23,7 @@ const (
 	CHECKBOX = "checkbox"
 	EDIT     = "edit"
 	PANE     = "pane"
+	COMBOBOX = "combobox"
 
 	windowId   = wa.UIA_WindowControlTypeId
 	buttonId   = wa.UIA_ButtonControlTypeId
@@ -35,6 +36,7 @@ const (
 	checkboxId = wa.UIA_CheckBoxControlTypeId
 	editId     = wa.UIA_EditControlTypeId
 	paneId     = wa.UIA_PaneControlTypeId
+	comboboxId = wa.UIA_ComboBoxControlTypeId
 )
 
 var elementTypes map[string]int64 = map[string]int64{
@@ -48,7 +50,8 @@ var elementTypes map[string]int64 = map[string]int64{
 	MENUITEM: menuitemId,
 	CHECKBOX: checkboxId,
 	EDIT:     editId,
-	PANE:     paneId}
+	PANE:     paneId,
+	COMBOBOX: comboboxId}
 
 type UXElement struct {
 	name        string

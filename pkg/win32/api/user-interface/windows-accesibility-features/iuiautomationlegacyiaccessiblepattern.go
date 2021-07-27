@@ -15,7 +15,31 @@ type IUIAutomationLegacyIAccessiblePattern struct {
 
 type IUIAutomationLegacyIAccessiblePatternVtbl struct {
 	ole.IUnknownVtbl
-	SetValue uintptr
+
+	DoDefaultAction             uintptr
+	Get_CachedChildId           uintptr
+	SetValue                    uintptr
+	Get_CachedDefaultAction     uintptr
+	Get_CachedDescription       uintptr
+	Get_CachedHelp              uintptr
+	Get_CachedKeyboardShortcut  uintptr
+	Get_CachedName              uintptr
+	Get_CachedRole              uintptr
+	Get_CachedState             uintptr
+	Get_CachedValue             uintptr
+	Get_CurrentChildId          uintptr
+	Get_CurrentDefaultAction    uintptr
+	Get_CurrentDescription      uintptr
+	Get_CurrentHelp             uintptr
+	Get_CurrentKeyboardShortcut uintptr
+	Get_CurrentName             uintptr
+	Get_CurrentRole             uintptr
+	Get_CurrentState            uintptr
+	Get_CurrentValue            uintptr
+	GetCachedSelection          uintptr
+	GetCurrentSelection         uintptr
+	GetIAccessible              uintptr
+	Select                      uintptr
 }
 
 // https://github.com/mmarquee/ui-automation/blob/ec43c1449b11b5d0f3fd313367e242c6ce456bd9/src/main/java/mmarquee/uiautomation/IUIAutomationLegacyIAccessiblePattern.java
@@ -30,7 +54,6 @@ func (pat *IUIAutomationLegacyIAccessiblePattern) VTable() *IUIAutomationLegacyI
 // 	LPCWSTR szValue
 // );
 func (pat *IUIAutomationLegacyIAccessiblePattern) SetValue(value string) error {
-
 	szValue, err := syscall.UTF16PtrFromString(value)
 	if err != nil {
 		return err
