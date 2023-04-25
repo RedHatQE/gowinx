@@ -10,6 +10,12 @@ LDFLAGS := $(VERSION_VARIABLES) -extldflags='-static' ${GO_EXTRA_LDFLAGS}
 clean: 
 	rm -rf $(BUILD_DIR)
 
+# Create and update the vendor directory
+.PHONY: vendor
+vendor:
+	go mod tidy
+	go mod vendor
+
 .PHONY: cross ## Cross compiles all binaries
 cross: $(BUILD_DIR)/gowinx.exe
 
