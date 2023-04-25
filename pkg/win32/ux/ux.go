@@ -1,4 +1,4 @@
-// +build windows
+//go:build windows
 
 package ux
 
@@ -24,6 +24,7 @@ const (
 	EDIT     = "edit"
 	PANE     = "pane"
 	COMBOBOX = "combobox"
+	DOCUMENT = "document"
 
 	windowId   = wa.UIA_WindowControlTypeId
 	buttonId   = wa.UIA_ButtonControlTypeId
@@ -37,6 +38,7 @@ const (
 	editId     = wa.UIA_EditControlTypeId
 	paneId     = wa.UIA_PaneControlTypeId
 	comboboxId = wa.UIA_ComboBoxControlTypeId
+	documentId = wa.UIA_DocumentControlTypeId
 )
 
 var elementTypes map[string]int64 = map[string]int64{
@@ -51,7 +53,8 @@ var elementTypes map[string]int64 = map[string]int64{
 	CHECKBOX: checkboxId,
 	EDIT:     editId,
 	PANE:     paneId,
-	COMBOBOX: comboboxId}
+	COMBOBOX: comboboxId,
+	DOCUMENT: documentId}
 
 type UXElement struct {
 	name        string
